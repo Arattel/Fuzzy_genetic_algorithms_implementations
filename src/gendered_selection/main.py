@@ -17,7 +17,7 @@ class Simulation:
         self.crossover = crossover
     
     def run(self, n_epochs: int =  20) -> None:
-        FS =  init_fuzzy_system()
+        FS =  init_fuzzy_system(rules_file=self.cfg.RULES_FILE)
         
         # Generate initial population
         genomes = np.random.normal(loc=2, scale=3, size=(self.cfg.N, 5))

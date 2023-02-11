@@ -1,5 +1,11 @@
 # Fuzzy_genetic_algorithms_implementations
 
+How to run: 
+
+```
+pip install -r requirements.txt
+python -m src.gendered_selection.main
+```
 
 - [ ] (In progress) Committee neural networks with fuzzy genetic algorithm
 

@@ -44,7 +44,7 @@ def init_diversity():
 def calculate_partner_age(fs, age, diversity):
     fs.set_variable("age", age)
     fs.set_variable("diversity", diversity)
-    return fs.Mamdani_inference(["partner_age"])['partner_age']
+    return fs.Mamdani_inference(["partner_age"], aggregation_function=sf.simpful.probor)['partner_age']
 
 
 def init_fuzzy_system(rules_file: str = 'rules.txt'):

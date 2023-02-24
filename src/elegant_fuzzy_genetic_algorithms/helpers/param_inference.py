@@ -4,7 +4,7 @@ from .linguistic_variables import (init_best_fitness, init_avg_fitness, init_avg
 class ParamInference:
     def __init__(self, varname: str, init_fn, rule_path: str) -> None:
         self.varname = varname
-        self.FS = sf.FuzzySystem()
+        self.FS = sf.FuzzySystem(verbose=False, show_banner=False)
         self.FS.add_linguistic_variable("bestFitness", init_best_fitness())
         self.FS.add_linguistic_variable("avgFitness", init_avg_fitness())
         self.FS.add_linguistic_variable("avgFitChange",init_avg_fit_change())

@@ -1,0 +1,6 @@
+IF (first IS excellent) AND (second IS excellent) THEN (priority IS veryHigh)
+IF (first IS excellent) AND (second IS acceptable) THEN (priority IS High)
+IF (first IS excellent) AND (second IS poor) THEN (priority IS Medium)
+IF (first IS acceptable) AND (second IS acceptable) THEN (priority IS Medium)
+IF (first IS acceptable) AND (second IS poor) THEN (priority IS Low)
+IF (first IS poor) AND (second IS poor) THEN (priority IS veryLow)

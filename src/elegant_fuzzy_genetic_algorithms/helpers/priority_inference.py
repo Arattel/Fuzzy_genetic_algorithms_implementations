@@ -18,5 +18,5 @@ class PriorityInference:
         
         self._fs.set_variable('first', first)
         self._fs.set_variable('second', second)
-        return self._fs.inference()['priority']
+        return self._fs.inference(ignore_warnings=True)['priority']
         

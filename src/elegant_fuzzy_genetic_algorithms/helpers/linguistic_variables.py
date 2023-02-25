@@ -26,10 +26,10 @@ def init_avg_fit_change():
 
 
 def init_x_rate():
-    Tra_1 = sf.TrapezoidFuzzySet(a=-1, b=0, c=0, d=0.5, term="low")
-    Tri_1 = sf.TriangleFuzzySet(a=0, b=0.5, c=1, term="medium")
-    Tra_2 = sf.TrapezoidFuzzySet(a=.5, b=1, c=1, d=2, term="high")
-    x_rate = sf.LinguisticVariable([Tra_1, Tri_1, Tra_2], universe_of_discourse=[0, 1])
+    Tra_1 = sf.TrapezoidFuzzySet(a=-1, b=.4, c=.4, d=.7, term="low")
+    Tri_1 = sf.TriangleFuzzySet(a=.4, b=0.7, c=1, term="medium")
+    Tra_2 = sf.TrapezoidFuzzySet(a=.7, b=1, c=1, d=2, term="high")
+    x_rate = sf.LinguisticVariable([Tra_1, Tri_1, Tra_2], universe_of_discourse=[0.4, 1])
     return x_rate
 
 def init_m_rate():

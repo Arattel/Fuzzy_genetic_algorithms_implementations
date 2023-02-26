@@ -1,8 +1,0 @@
-IF (bestFitness IS poor) THEN (mRate IS high)
-IF (avgFitness IS excellent) THEN (mRate IS low)
-IF (avgFitChange IS low) AND (avgFitness IS poor) THEN (mRate IS high)
-IF (avgFitChange IS low) AND (avgFitness IS acceptable) THEN (mRate IS medium)
-IF (avgFitChange IS medium) AND (avgFitness IS poor) THEN (mRate IS high)
-IF (avgFitChange IS medium) AND (avgFitness IS acceptable) THEN (mRate IS medium)
-IF (avgFitChange IS high) AND (avgFitness IS poor) THEN (mRate IS medium)
-IF (avgFitChange IS high) AND (avgFitness IS acceptable) THEN (mRate IS low)

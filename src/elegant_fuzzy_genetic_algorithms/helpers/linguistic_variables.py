@@ -1,65 +1,131 @@
 import simpful as sf
+import fuzzylite as fl
 
-def init_best_fitness():
-    Tra_1 = sf.TrapezoidFuzzySet(a=-1, b=0, c=0, d=0.25, term="excellent")
-    Tri_1 = sf.TriangleFuzzySet(a=0, b=0.25, c=0.5, term="acceptable")
-    Tra_2 = sf.TrapezoidFuzzySet(a=.25, b=.5, c=1, d=2, term="poor")
-    best_fitness = sf.LinguisticVariable([Tra_1, Tri_1, Tra_2], universe_of_discourse=[0, .5])
-    return best_fitness
+best_fitness =  fl.InputVariable(
+        name="bestFitness",
+        description="",
+        enabled=True,
+        minimum=0.0,
+        maximum=.5,
+        lock_range=False,
+        terms=[
+            fl.Trapezoid("excellent", -1, 0, 0, 0.25),
+            fl.Triangle("acceptable", 0, 0.25, 0.5,),
+            fl.Trapezoid("poor", .25, .5, 1, 2),
+        ],)
+
+average_fitness = fl.InputVariable(
+        name="avgFitness",
+        description="",
+        enabled=True,
+        minimum=0.0,
+        maximum=1.0,
+        lock_range=False,
+        terms=[
+            fl.Trapezoid("excellent", -1, 0, 0, 0.5),
+            fl.Triangle("acceptable", 0, 0.5, 1,),
+            fl.Trapezoid("poor", .5, 1, 1, 2),
+        ],)
+
+average_fitness_change =  fl.InputVariable(
+        name="avgFitChange",
+        description="",
+        enabled=True,
+        minimum=0.0,
+        maximum=1.0,
+        lock_range=False,
+        terms=[
+            fl.Trapezoid("low", -1, 0,  0, 0.2),
+            fl.Triangle("medium", 0, 0.3, .6,),
+            fl.Triangle("high", 0.3, 1, 1.6),
+        ],)
+
+x_rate = fl.OutputVariable(
+        name="xRate",
+        description="",
+        enabled=True,
+        minimum=0.4,
+        maximum=1.0,
+        lock_range=False,
+        defuzzifier=fl.Centroid(),
+        aggregation=fl.Maximum(),
+        terms=[
+            fl.Trapezoid("low", -1, .4, .4, .7,),
+            fl.Triangle("medium", .4, 0.7, 1),
+            fl.Trapezoid("high", .7, 1, 1, 2),
+        ],)
 
 
-def init_avg_fitness():
-    Tra_1 = sf.TrapezoidFuzzySet(a=-1, b=0, c=0, d=0.5, term="excellent")
-    Tri_1 = sf.TriangleFuzzySet(a=0, b=0.5, c=1, term="acceptable")
-    Tra_2 = sf.TrapezoidFuzzySet(a=.5, b=1, c=1, d=2, term="poor")
-    avg_fitness = sf.LinguisticVariable([Tra_1, Tri_1, Tra_2], universe_of_discourse=[0, 1])
-    return avg_fitness
-
-def init_avg_fit_change():
-    Tra_1 = sf.TrapezoidFuzzySet(a=-1, b=0, c=0, d=0.2, term="low")
-    Tri_1 = sf.TriangleFuzzySet(a=0, b=0.3, c=.6, term="medium")
-    Tri_2 = sf.TriangleFuzzySet(a=0.3, b=1, c=1.6, term="high")
-
-
-    avg_fitness_change = sf.LinguisticVariable([Tra_1, Tri_1, Tri_2], universe_of_discourse=[0, 1])
-    return avg_fitness_change
-
-
-def init_x_rate():
-    Tra_1 = sf.TrapezoidFuzzySet(a=-1, b=.4, c=.4, d=.7, term="low")
-    Tri_1 = sf.TriangleFuzzySet(a=.4, b=0.7, c=1, term="medium")
-    Tra_2 = sf.TrapezoidFuzzySet(a=.7, b=1, c=1, d=2, term="high")
-    x_rate = sf.LinguisticVariable([Tra_1, Tri_1, Tra_2], universe_of_discourse=[0.4, 1])
-    return x_rate
-
-def init_m_rate():
-    Tra_1 = sf.TrapezoidFuzzySet(a=-1, b=0, c=0, d=0.025, term="low")
-    Tri_1 = sf.TriangleFuzzySet(a=0, b=0.025, c=.05, term="medium")
-    Tra_2 = sf.TrapezoidFuzzySet(a=.025, b=.05, c=.05, d=.5, term="high")
-    m_rate = sf.LinguisticVariable([Tra_1, Tri_1, Tra_2], universe_of_discourse=[0, .05])
-    return m_rate
-
-def init_subpop_size():
-    Tra_1 = sf.TrapezoidFuzzySet(a=-1, b=.14, c=.14, d=0.2, term="small")
-    Tri_1 = sf.TriangleFuzzySet(a=.14, b=0.2, c=.26, term="medium")
-    Tra_2 = sf.TrapezoidFuzzySet(a=.2, b=.26, c=.26, d=.5, term="large")
-    subpop_size = sf.LinguisticVariable([Tra_1, Tri_1, Tra_2], universe_of_discourse=[.14, .26])
-    return subpop_size
-
-def init_cf():
-    Tra_1 = sf.TrapezoidFuzzySet(a=-1, b=0, c=0, d=0.5, term="excellent")
-    Tri_1 = sf.TriangleFuzzySet(a=0, b=0.5, c=1, term="acceptable")
-    Tra_2 = sf.TrapezoidFuzzySet(a=.5, b=1, c=1, d=2, term="poor")
-    cf = sf.LinguisticVariable([Tra_1, Tri_1, Tra_2], universe_of_discourse=[0, 1])
-    return cf
+m_rate = fl.OutputVariable(
+        name="mRate",
+        description="",
+        enabled=True,
+        minimum=0,
+        maximum=.05,
+        lock_range=False,
+        defuzzifier=fl.Centroid(),
+        aggregation=fl.Maximum(),
+        terms=[
+            fl.Trapezoid("low", -1, 0,  0, 0.025),
+            fl.Triangle("medium", 0, 0.025, .05),
+            fl.Trapezoid("high", .025, .05, .05, .5),
+        ],)
 
 
-def init_priority():
-    Tri_1 = sf.TriangleFuzzySet(a=-2, b=-1, c=-.5, term="veryLow")
-    Tri_2 = sf.TriangleFuzzySet(a=-1, b=-.5, c=0, term="Low")
-    Tri_3 = sf.TriangleFuzzySet(a=-.5, b=0, c=.5, term="Medium")
-    Tri_4 = sf.TriangleFuzzySet(a=0, b=.5, c=1, term="High")
-    Tri_5 = sf.TriangleFuzzySet(a=.5, b=1, c=2, term="veryHigh")
+subpop_size = fl.OutputVariable(
+        name="subPopSize",
+        description="",
+        enabled=True,
+        minimum=.14,
+        maximum=.26,
+        lock_range=False,
+        defuzzifier=fl.Centroid(),
+        aggregation=fl.Maximum(),
+        terms=[
+            fl.Trapezoid("small", -1, .14, .14, 0.2,),
+            fl.Triangle("medium",.14, 0.2, .26,),
+            fl.Trapezoid("large", .2,.26,.26, .5),
+        ],)
 
-    priority = sf.LinguisticVariable([Tri_1, Tri_2, Tri_3, Tri_4, Tri_5], universe_of_discourse=[-1, 1])
-    return priority
+first_cl = fl.InputVariable(
+        name="first",
+        description="",
+        enabled=True,
+        minimum=0.0,
+        maximum=1.0,
+        lock_range=False,
+        terms=[
+            fl.Trapezoid("excellent", -1, 0, 0, 0.5),
+            fl.Triangle("acceptable", 0, 0.5, 1,),
+            fl.Trapezoid("poor", .5, 1, 1, 2),
+        ],)
+
+second_cl = fl.InputVariable(
+        name="second",
+        description="",
+        enabled=True,
+        minimum=0.0,
+        maximum=1.0,
+        lock_range=False,
+        terms=[
+            fl.Trapezoid("excellent", -1, 0, 0, 0.5),
+            fl.Triangle("acceptable", 0, 0.5, 1,),
+            fl.Trapezoid("poor", .5, 1, 1, 2),
+        ],)
+
+priority = fl.OutputVariable(
+        name="priority",
+        description="",
+        enabled=True,
+        minimum=-1,
+        maximum=1,
+        lock_range=False,
+        defuzzifier=fl.Centroid(),
+        aggregation=fl.Maximum(),
+        terms=[
+            fl.Triangle("veryLow",-2, -1, -.5),
+            fl.Triangle("Low",-1, -.5, 0),
+            fl.Triangle("Medium",-.5, 0, .5,),
+            fl.Triangle("High", 0, .5, 1,),
+            fl.Triangle("veryHigh",.5, 1, 2),
+        ],)

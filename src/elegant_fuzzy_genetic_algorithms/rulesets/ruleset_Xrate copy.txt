@@ -1,0 +1,30 @@
+if  bestFitness is poor  then  xRate is high 
+if  avgFitness is excellent  then  xRate is low 
+if  avgFitChange is low   and  avgFitness is poor  then  xRate is high 
+if  avgFitChange is low   and  avgFitness is acceptable  then  xRate is medium 
+if  avgFitChange is medium   and  avgFitness is poor  then  xRate is high 
+if  avgFitChange is medium   and  avgFitness is acceptable  then  xRate is medium 
+if  avgFitChange is high   and  avgFitness is poor  then  xRate is medium 
+if  avgFitChange is high   and  avgFitness is acceptable  then  xRate is low 
+if  bestFitness is poor  then  mRate is high 
+if  avgFitness is excellent  then  mRate is low 
+if  avgFitChange is low   and  avgFitness is poor  then  mRate is high 
+if  avgFitChange is low   and  avgFitness is acceptable  then  mRate is medium 
+if  avgFitChange is medium   and  avgFitness is poor  then  mRate is high 
+if  avgFitChange is medium   and  avgFitness is acceptable  then  mRate is medium 
+if  avgFitChange is high   and  avgFitness is poor  then  mRate is medium 
+if  avgFitChange is high   and  avgFitness is acceptable  then  mRate is low 
+if  bestFitness is poor  then  subPopSize is large 
+if  avgFitness is excellent  then  subPopSize is small 
+if  avgFitChange is low   and  avgFitness is poor  then  subPopSize is large 
+if  avgFitChange is low   and  avgFitness is acceptable  then  subPopSize is medium 
+if  avgFitChange is medium   and  avgFitness is poor  then  subPopSize is large 
+if  avgFitChange is medium   and  avgFitness is acceptable  then  subPopSize is medium 
+if  avgFitChange is high   and  avgFitness is poor  then  subPopSize is medium 
+if  avgFitChange is high   and  avgFitness is acceptable  then  subPopSize is small
+if first is excellent and second is excellent then priority is veryHigh
+if first is excellent and second is acceptable then priority is High
+if first is excellent and second is poor then priority is Medium
+if first is acceptable and second is acceptable then priority is Medium
+if first is acceptable and second is poor then priority is Low
+if first is poor and second is poor then priority is veryLow

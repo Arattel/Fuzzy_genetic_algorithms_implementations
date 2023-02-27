@@ -1,0 +1,6 @@
+if first is excellent and second is excellent then priority is veryHigh
+if first is excellent and second is acceptable then priority is High
+if first is excellent and second is poor then priority is Medium
+if first is acceptable and second is acceptable then priority is Medium
+if first is acceptable and second is poor then priority is Low
+if first is poor and second is poor then priority is veryLow

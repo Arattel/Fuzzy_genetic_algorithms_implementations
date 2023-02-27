@@ -22,9 +22,3 @@ if  avgFitChange is medium   and  avgFitness is poor  then  subPopSize is large
 if  avgFitChange is medium   and  avgFitness is acceptable  then  subPopSize is medium 
 if  avgFitChange is high   and  avgFitness is poor  then  subPopSize is medium 
 if  avgFitChange is high   and  avgFitness is acceptable  then  subPopSize is small
-if first is excellent and second is excellent then priority is veryHigh
-if first is excellent and second is acceptable then priority is High
-if first is excellent and second is poor then priority is Medium
-if first is acceptable and second is acceptable then priority is Medium
-if first is acceptable and second is poor then priority is Low
-if first is poor and second is poor then priority is veryLow

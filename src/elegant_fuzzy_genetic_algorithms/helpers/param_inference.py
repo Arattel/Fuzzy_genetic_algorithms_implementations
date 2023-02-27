@@ -2,10 +2,14 @@ import fuzzylite as fl
 from .linguistic_variables import *
 
 class ParamInference:
-    def __init__(self, rule_path: str) -> None:
-        self.engine = fl.Engine(name="approximation", description="")
-        self.engine.input_variables = [average_fitness, best_fitness, average_fitness_change, first_cl, second_cl]
-        self.engine.output_variables = [x_rate, m_rate, subpop_size, priority]
+    def __init__(self, rule_path_param: str, rule_path_priority: str) -> None:
+        self.engine_params = fl.Engine(name="approximation", description="")
+        self.engine_params.input_variables = [average_fitness, best_fitness, average_fitness_change]
+        self.engine_params.output_variables = [x_rate, m_rate, subpop_size]
+
+        self.engine_priority = fl.Engine(name="approximation", description="")
+        self.engine_priority.input_variables = [first_cl, second_cl]
+        self.engine_priority.output_variables = [priority]
 
         # Input variables
         self.average_fitness = average_fitness
@@ -20,11 +24,15 @@ class ParamInference:
         self.subpop_size = subpop_size
         self.priority =  priority
 
-        rules = []
-        with open(rule_path, 'r') as f:
-            rules = f.readlines()
+        rules_params = []
+        with open(rule_path_param, 'r') as f:
+            rules_params = f.readlines()
 
-        self.engine.rule_blocks = [
+        rules_priority = []
+        with open(rule_path_priority, 'r') as f:
+            rules_priority = f.readlines()
+
+        self.engine_params.rule_blocks = [
             fl.RuleBlock(
         name="",
         description="",
@@ -34,7 +42,20 @@ class ParamInference:
         implication=fl.Minimum(),
         activation=fl.General(),
         rules=[
-    fl.Rule.create(rule.strip(), self.engine) for rule in rules
+    fl.Rule.create(rule.strip(), self.engine_params) for rule in rules_params
+        ],
+    )]
+        self.engine_priority.rule_blocks = [
+            fl.RuleBlock(
+        name="",
+        description="",
+        enabled=True,
+        conjunction=fl.Minimum(),
+        disjunction=None,
+        implication=fl.Minimum(),
+        activation=fl.General(),
+        rules=[
+    fl.Rule.create(rule.strip(), self.engine_priority) for rule in rules_priority
         ],
     )
 ]
@@ -47,7 +68,7 @@ class ParamInference:
         self.average_fitness.value = avgFitness
         self.average_fitness_change.value = avgFitChange
 
-        self.engine.process()
+        self.engine_params.process()
 
         return {'xRate':self.x_rate.value, 'mRate':self.m_rate.value, 'subPopSize': self.subpop_size.value}
        
@@ -60,7 +81,7 @@ class ParamInference:
         self.first_cl.value = first
         self.second_cl.value = second
 
-        self.engine.process()
+        self.engine_priority.process()
 
         return self.priority.value
 

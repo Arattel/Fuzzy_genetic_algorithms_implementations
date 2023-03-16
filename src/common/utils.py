@@ -25,6 +25,15 @@ def _mutate_single_point(genome):
     genome[k] += np.random.normal(loc=0.0, scale=.2)
     return genome
 
+def mutation(loc,):
+    def _mutation(genome):
+        return genome + np.random.normal(loc, scale=3)
+    return _mutation
+
+def minus_sign(fn):
+    def minus_fn(x):
+        return -fn(x)
+    return minus_fn
 
 if __name__ == '__main__':
     print('Hellow')

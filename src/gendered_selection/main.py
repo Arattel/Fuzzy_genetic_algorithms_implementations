@@ -5,7 +5,7 @@ from scipy.spatial import distance_matrix
 from tqdm import tqdm
 
 from .helpers import (calculate_lifetime)
-from ..common.utils import (quadratic_fitness, mutate_single_point, crossover)
+from ..common.utils import (quadratic_fitness, mutate_single_point, crossover, minus_sign)
 from .conf.gendered_selection_config import Config
 from .faster_fuzzy_logic.infer_partner_age import Inferrer
 import line_profiler
@@ -20,7 +20,7 @@ def schwefel(genome):
 class Simulation:
     def __init__(self, conf: Config, fitness_fn=None, mutation=None, crossover=None) -> None:
         self.cfg = conf
-        self.fitness_fn = fitness_fn
+        self.fitness_fn = minus_sign(fitness_fn)
         self.mutation = mutation
         self.crossover = crossover
     

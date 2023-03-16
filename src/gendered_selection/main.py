@@ -26,11 +26,13 @@ class Simulation:
     
     @profiler
     def run(self, n_epochs: int =  20) -> None:
+        N_FITNESS_FN_CALLS: int = 0
         FS =  Inferrer(rule_path=self.cfg.RULES_FILE)
         
         # Generate initial population
         genomes = np.random.uniform(-2000, 2000, size=(self.cfg.N, 5))
         fitness = np.apply_along_axis(self.fitness_fn, 1, genomes)
+        N_FITNESS_FN_CALLS += genomes.shape[0]
         gender = (np.random.rand(self.cfg.N) >= .5).astype(int)
         age = np.zeros(self.cfg.N)
         
@@ -66,6 +68,7 @@ class Simulation:
             
             genomes = np.apply_along_axis(self.mutation, 1, genomes)
             fitness = np.apply_along_axis(self.fitness_fn, 1, genomes)
+            N_FITNESS_FN_CALLS += genomes.shape[0]
             
             # Removing "old" genomes 
             lifetime = calculate_lifetime(L=Config.L, U = Config.U, fitness=fitness, age=age)
@@ -76,13 +79,13 @@ class Simulation:
             fitness = fitness[~to_remove]
 
             history.append({
-                'median_fitness': np.median(fitness), 
+                'avg_fitness': np.mean(fitness), 
                 'max_fitness': np.max(fitness), 
                 'population_size': genomes.shape[0], 
                 'epoch': epoch
             })
         history =  pd.DataFrame.from_records(history)
-        history.to_csv('./log/history.csv')
+        return history, genomes[np.argmax(fitness)], N_FITNESS_FN_CALLS
         
 
 if __name__ == '__main__':

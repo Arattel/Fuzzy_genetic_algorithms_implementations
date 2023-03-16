@@ -4,9 +4,17 @@ import simpful as sf
 from scipy.spatial import distance_matrix
 from tqdm import tqdm
 
-from .helpers import (calculate_lifetime, init_age, init_diversity, calculate_partner_age, init_fuzzy_system)
+from .helpers import (calculate_lifetime)
 from ..common.utils import (quadratic_fitness, mutate_single_point, crossover)
 from .conf.gendered_selection_config import Config
+from .faster_fuzzy_logic.infer_partner_age import Inferrer
+import line_profiler
+
+profiler = line_profiler.LineProfiler()
+
+
+def schwefel(genome):
+    return -np.abs(418.9829 * genome.shape[0] - np.sum(genome * np.sin(np.sqrt(np.abs(genome)))))
 
 
 class Simulation:
@@ -16,11 +24,12 @@ class Simulation:
         self.mutation = mutation
         self.crossover = crossover
     
+    @profiler
     def run(self, n_epochs: int =  20) -> None:
-        FS =  init_fuzzy_system(rules_file=self.cfg.RULES_FILE)
+        FS =  Inferrer(rule_path=self.cfg.RULES_FILE)
         
         # Generate initial population
-        genomes = np.random.normal(loc=2, scale=3, size=(self.cfg.N, 5))
+        genomes = np.random.uniform(-2000, 2000, size=(self.cfg.N, 5))
         fitness = np.apply_along_axis(self.fitness_fn, 1, genomes)
         gender = (np.random.rand(self.cfg.N) >= .5).astype(int)
         age = np.zeros(self.cfg.N)
@@ -39,7 +48,7 @@ class Simulation:
             diversity = age[male_indices] / lifetime[male_indices]
             population_diversity = diversity.mean()
             
-            female_preferred_age = np.array([calculate_partner_age(FS, age=lifetime[i], diversity=population_diversity) for i in random_males])
+            female_preferred_age = np.array([FS.infer_partner_age(age=lifetime[i], diversity=population_diversity) for i in random_males])
             mate_selection = np.argmin(distance_matrix(female_preferred_age.reshape(-1, 1), lifetime[female_indices].reshape(-1, 1)), axis=1)
             
             
@@ -56,7 +65,7 @@ class Simulation:
             # Calculating fitness again
             
             genomes = np.apply_along_axis(self.mutation, 1, genomes)
-            fitness = np.apply_along_axis(quadratic_fitness, 1, genomes)
+            fitness = np.apply_along_axis(self.fitness_fn, 1, genomes)
             
             # Removing "old" genomes 
             lifetime = calculate_lifetime(L=Config.L, U = Config.U, fitness=fitness, age=age)
@@ -77,5 +86,6 @@ class Simulation:
         
 
 if __name__ == '__main__':
-    s =  Simulation(conf=Config(), fitness_fn=quadratic_fitness, mutation=mutate_single_point, crossover=crossover)
-    s.run()
+    s =  Simulation(conf=Config(), fitness_fn=schwefel, mutation=mutate_single_point, crossover=crossover)
+    s.run(n_epochs=120)
+    profiler.print_stats()

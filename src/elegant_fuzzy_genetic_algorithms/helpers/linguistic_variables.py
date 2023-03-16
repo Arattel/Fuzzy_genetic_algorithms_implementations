@@ -1,4 +1,3 @@
-import simpful as sf
 import fuzzylite as fl
 
 best_fitness =  fl.InputVariable(

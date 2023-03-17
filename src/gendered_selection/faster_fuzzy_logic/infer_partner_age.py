@@ -24,7 +24,7 @@ class Inferrer:
         description="",
         enabled=True,
         conjunction=fl.Minimum(),
-        disjunction=None,
+        disjunction=fl.Maximum(),
         implication=fl.Minimum(),
         activation=fl.General(),
         rules=[
@@ -44,5 +44,5 @@ class Inferrer:
 
 
 if __name__ == '__main__':
-    inf = Inferrer('../conf/rules_ref.txt')
-    print(inf.infer_partner_age(.35, 5.9))
+    inf = Inferrer('src/gendered_selection/conf/rules_ref.txt')
+    print(inf.infer_partner_age(.42, 5.9))

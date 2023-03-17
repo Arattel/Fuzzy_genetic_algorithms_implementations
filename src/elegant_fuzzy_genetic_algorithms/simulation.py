@@ -19,7 +19,15 @@ class SimulationConfig:
     mutation_scale: float = 2
     x_range: float = 2000
 
-def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = Conf.default_params, conf: SimulationConfig = SimulationConfig(), fitness_fn = None):
+def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = Conf.default_params, conf: SimulationConfig = SimulationConfig(), fitness_fn = None, 
+               mutation_scale = None, population_scale=None):
+    
+    if mutation_scale is not None:
+        conf.mutation_scale = mutation_scale
+
+    if population_scale is not None:
+        conf.x_range = population_scale
+    
     priority_inferencer =  ParamInference(rule_path_param=Conf.rule_path_param, rule_path_priority=Conf.rule_path_priority)
 
     N_FITNESS_FN_CALLS: int = 0
@@ -128,5 +136,8 @@ def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = C
                         'epoch': i})
     
     df = pd.DataFrame.from_records(history)
-    df['worst_fitness'] = worst_initial_fitness
+
+    # Transform relative fitness into absolute fitness
+    df[['best_fitness', 'avg_fitness']] = df[['best_fitness', 'avg_fitness']] * worst_initial_fitness
+
     return df, genomes[heap[0][1]], N_FITNESS_FN_CALLS

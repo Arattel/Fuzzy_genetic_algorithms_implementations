@@ -50,7 +50,7 @@ class Simulation:
             male_indices = np.argwhere(gender == 1).flatten()
             female_indices = np.argwhere(gender == 0).flatten()
             
-            if not male_indices.shape[0]:
+            if not (male_indices.shape[0] and female_indices.shape[0]):
                 print(f'Early stopping at epoch: {epoch}, population died')
                 break
                         

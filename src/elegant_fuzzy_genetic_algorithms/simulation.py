@@ -20,8 +20,8 @@ class SimulationConfig:
     x_range: float = 2000
 
 def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = Conf.default_params, conf: SimulationConfig = SimulationConfig(), fitness_fn = None, 
-               mutation_scale = None, population_scale=None):
-    
+               mutation_scale = None, population_scale=None, seed=42):
+    np.random.seed(seed)
     if mutation_scale is not None:
         conf.mutation_scale = mutation_scale
 

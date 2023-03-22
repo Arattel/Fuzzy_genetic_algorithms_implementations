@@ -3,4 +3,5 @@
 log/
 main.py.lprof
 *.log
-img
+*.zip
+img/

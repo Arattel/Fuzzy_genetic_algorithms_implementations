@@ -95,7 +95,7 @@ class GeneralizedInferrer(object):
             enabled=True,
             minimum=0.0,
             maximum=1.0, 
-            terms=generate_var_terms(universe=(0, 1), trapezoid_points=(.25, .85), n_terms=4),
+            terms=generate_var_terms(universe=(0, 1), trapezoid_points=(.25, .85), n_terms=n_partitions),
             defuzzifier=fl.Centroid(),
             aggregation=fl.Maximum()
         )

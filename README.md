@@ -17,5 +17,5 @@ To run, open `efga.ipynb`
 
 TODO @ 29/03:
 
-- [ ]  Custom number of partitions for efga (priority & params)
+- [X]  Custom number of partitions for efga (priority & params)
 - [ ] Parallel priority inference

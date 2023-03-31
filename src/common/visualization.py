@@ -18,7 +18,8 @@ def visualize_efga(history: pd.DataFrame, windowsize_best: int = 10, windowsize_
     ax1.set_title(f'Mean fitness of population, noving average of {windowsize_avg}')
     ax2.set_title(f'Best fitness of population, noving average of {windowsize_best}')
     fig.suptitle(f'Optimization of {function_name}')
-    plt.show()
+    # plt.show()
+    return fig
 
 
 
@@ -46,4 +47,6 @@ def visualize_gendered(history: pd.DataFrame, windowsize_best: int = 10, windows
     ax3.set_title(f'Population, moving average of {windowsize_pop}')
 
     fig.suptitle(f'Optimization of {function_name}')
-    plt.show()
+    return fig
+
+    # plt.show()

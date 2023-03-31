@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 from src.elegant_fuzzy_genetic_algorithms.helpers.heap_helpers import (create_heap, replace_leaves_with_children, 
                                                                        approximate_topk_indices, update_parents_with_indices)
-from src.elegant_fuzzy_genetic_algorithms.helpers.param_inference import ParamInference
+from src.elegant_fuzzy_genetic_algorithms.helpers.all_params_wrapper import AllEFGAParamsParallelWrapper
 from src.elegant_fuzzy_genetic_algorithms.conf.param_inference_config import Conf
 from src.common.utils import (quadratic_fitness, _mutate_single_point, crossover_2, mutate_single_point, crossover, mutation)
 from src.gendered_selection.main import Simulation
@@ -20,7 +20,7 @@ class SimulationConfig:
     x_range: float = 2000
 
 def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = Conf.default_params, conf: SimulationConfig = SimulationConfig(), fitness_fn = None, 
-               mutation_scale = None, population_scale=None, seed=42):
+               mutation_scale = None, population_scale=None, seed=42,  n_terms_params: int = 3, n_terms_priority: int = 3,):
     np.random.seed(seed)
     if mutation_scale is not None:
         conf.mutation_scale = mutation_scale
@@ -28,7 +28,7 @@ def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = C
     if population_scale is not None:
         conf.x_range = population_scale
     
-    priority_inferencer =  ParamInference(rule_path_param=Conf.rule_path_param, rule_path_priority=Conf.rule_path_priority)
+    priority_inferencer =  AllEFGAParamsParallelWrapper(n_terms_params=n_terms_params, n_terms_priority=n_terms_priority)
 
     N_FITNESS_FN_CALLS: int = 0
     params = default_params
@@ -101,22 +101,27 @@ def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = C
             genomes, heap = replace_leaves_with_children(solutions=genomes, heap=heap, children=child_genomes[use_to_replace], children_fitness=child_fitness[use_to_replace])
     
         # updating parent priorities & mutating parents
-        priority_updates = []
-        parent_indices = []
-        for i in range(parent_1.shape[0]):
-            c1_fitness, c2_fitness = child_fitness[i * 2], child_fitness[i * 2 + 1]
-            priority_update = -priority_inferencer.infer_priority(c1_fitness, c2_fitness)
-            priority_updates += [priority_update, priority_update]
-            parent_indices += [parent_1[i], parent_2[i]]
+        # priority_updates = []
+        # parent_indices = []
+        # for i in range(parent_1.shape[0]):
+        #     c1_fitness, c2_fitness = child_fitness[i * 2], child_fitness[i * 2 + 1]
+        #     priority_update = -priority_inferencer.infer_priority(c1_fitness, c2_fitness)
+        #     priority_updates += [priority_update, priority_update]
+        #     parent_indices += [parent_1[i], parent_2[i]]
+        
+        c1_fitness, c2_fitness = child_fitness[::2], child_fitness[1::2]
+        priority_updates = np.repeat(-priority_inferencer.infer_priority(c1_fitness, c2_fitness), 2)
+        parent_indices = np.zeros(parent_1.shape[0] * 2, dtype=int)
+        parent_indices[::2] =  parent_1
+        parent_indices[1::2] = parent_2
+
+        mutate = np.random.rand(parent_indices.shape[0]) < params['mRate']
+
     
-            # Mutating parent genomes
-            indices = [parent_1[i], parent_2[i]]
-            mutate = np.random.rand(2) < params['mRate']
-    
-            for j in range(len(indices)):
-                 if mutate[j]:
-                    index_to_mutate = heap[indices[j]][1]
-                    genomes[index_to_mutate] = mutation(conf.mutation_scale)(genomes[index_to_mutate])
+        for j in range(len(parent_indices)):
+            if mutate[j]:
+                index_to_mutate = heap[parent_indices[j]][1]
+                genomes[index_to_mutate] = mutation(conf.mutation_scale)(genomes[index_to_mutate])
         
         
         # Parent priorities updated, heap heapified

@@ -8,8 +8,9 @@ def schwefel(genome):
 
 
 def griewank(genome):
-    return 1 + (np.sum(np.square(genome)) / 400) - np.product(np.cos(
-        genome / (np.arange(genome.shape[0]) + 1)))
+    s = np.sum(np.square(genome))
+    p = np.product(np.cos(genome / (np.sqrt(np.arange(genome.shape[0])+ 1))))
+    return 1 + ((s) / 4000) - p
 
 
 def rastrigin(genome):

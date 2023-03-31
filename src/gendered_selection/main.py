@@ -8,6 +8,7 @@ from .helpers import (calculate_lifetime)
 from ..common.utils import (quadratic_fitness, mutate_single_point, crossover, minus_sign)
 from .conf.gendered_selection_config import Config
 from .faster_fuzzy_logic.infer_partner_age import Inferrer
+from .faster_fuzzy_logic.parallel_parition_inferrer import ParallelInferrer
 import line_profiler
 
 profiler = line_profiler.LineProfiler()
@@ -28,13 +29,13 @@ class Simulation:
         self.crossover = crossover
     
     @profiler
-    def run(self, n_epochs: int =  20, seed: int = 42, percent_males_reproducing=None, population_scale=1,  mutation_scale = .2,) -> None:
+    def run(self, n_epochs: int =  20, seed: int = 42, percent_males_reproducing=None, population_scale=1,  mutation_scale = .2, n_partitions: int = 5) -> None:
         if percent_males_reproducing is not None:
             self.cfg.PERCENT_MALES_REPRODUCING = percent_males_reproducing
 
         np.random.seed(seed)
         N_FITNESS_FN_CALLS: int = 0
-        FS =  Inferrer(rule_path=self.cfg.RULES_FILE)
+        FS =  ParallelInferrer(n_partitions=n_partitions)
         
         # Generate initial population
         genomes = np.random.uniform(-population_scale, population_scale, size=(self.cfg.N, 5))
@@ -65,7 +66,8 @@ class Simulation:
             diversity = age[male_indices] / lifetime[male_indices]
             population_diversity = diversity.mean()
             
-            female_preferred_age = np.array([FS.infer_partner_age(age=lifetime[i], diversity=population_diversity) for i in random_males])
+            female_preferred_age =  FS.multiprocessing_preferred_age(lifetime=lifetime, population_diversity=population_diversity, male_indices_to_reproduce=random_males)
+            # female_preferred_age = np.array([FS.infer_partner_age(age=lifetime[i], diversity=population_diversity) for i in random_males])
             mate_selection = np.argmin(distance_matrix(female_preferred_age.reshape(-1, 1), lifetime[female_indices].reshape(-1, 1)), axis=1)
             
             

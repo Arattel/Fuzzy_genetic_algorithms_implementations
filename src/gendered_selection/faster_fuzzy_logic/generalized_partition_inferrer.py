@@ -2,40 +2,11 @@
 import fuzzylite as fl
 import numpy as np
 
-def generate_var_terms(universe: tuple[float], trapezoid_points: tuple[float], n_terms: int = 4) -> list[fl.Term]:
-    """Generates terms given universe, trapezoid points and number of term
-
-    Args:
-        universe (tuple[float]): general universe of the variable
-        trapezoid_points (tuple[float]): left/right 
-        n_terms (int, optional): Number of terms. Defaults to 4.
-
-    Returns:
-        list[fl.Term]: list of terms
-    """
-    points = np.linspace(trapezoid_points[0], trapezoid_points[1], n_terms)
-    terms = [fl.Trapezoid("first_bin", universe[0] - 1, universe[0], points[0], points[1]),
-             fl.Trapezoid("last_bin", points[-2], points[-1], universe[1], universe[1] + 1),]
-    
-    if len(points) > 2: 
-        for i in range(n_terms - 2):
-            index = i + 2
-            term = fl.Triangle(f'bin_{index}', points[i], points[i + 1], points[i + 2])
-            terms.append(term)
-    return terms
+from ...common.generalized_helpers import (generate_var_terms, _generate_bin_name)
 
 def check_bin_sizes_gendered(age_bins: int = 4, diversity_bins: int = 4):
     return age_bins ==  diversity_bins
 
-def _generate_bin_name(index: int, n_bins: int) -> str:
-    cat_name = None
-    if index == 0:
-        cat_name = 'first_bin'
-    elif index < n_bins - 1:
-        cat_name = f'bin_{index+1}'
-    elif index == n_bins - 1:
-        cat_name = f'last_bin'
-    return cat_name
 
 def _format_rule(cat1:str, cat2:str, cat3:str) -> str:
     return f'if age is {cat1} and diversity is {cat2} then partner_age is {cat3}'

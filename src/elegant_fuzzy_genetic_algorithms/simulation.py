@@ -48,7 +48,6 @@ def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = C
         # Indices of parents in heap & fitness
         topk = np.arange(n_subpop_individuals)
         subpop_fitness = np.array([heap[topk[i]][2] for i in range(n_subpop_individuals)])
-        
         # Indices of parents in genome array    
         topk_indices = [heap[topk[i]][1] for i in range(n_subpop_individuals)]
         
@@ -88,7 +87,8 @@ def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = C
 
 
         if mutate.sum():
-            child_genomes[mutate] =  np.apply_along_axis(mutation(conf.mutation_scale), 1, child_genomes[mutate])
+            child_genomes[mutate] =  np.clip(np.apply_along_axis(mutation(conf.mutation_scale), 1, child_genomes[mutate]), 
+                                             -population_scale, population_scale)
             
             
         # Calculating children fitness, replacing worst solutions with good childre
@@ -121,7 +121,7 @@ def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = C
         for j in range(len(parent_indices)):
             if mutate[j]:
                 index_to_mutate = heap[parent_indices[j]][1]
-                genomes[index_to_mutate] = mutation(conf.mutation_scale)(genomes[index_to_mutate])
+                genomes[index_to_mutate] = np.clip(mutation(conf.mutation_scale)(genomes[index_to_mutate]), -population_scale, population_scale)
         
         
         # Parent priorities updated, heap heapified
@@ -129,9 +129,8 @@ def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = C
         hq.heapify(heap)
     
         cur_avg_fitness = np.mean([i[2] for i in heap])
-        avg_fit_change = prev_avg_fitness - cur_avg_fitness
+        avg_fit_change = np.abs(prev_avg_fitness - cur_avg_fitness)
         
-    
         params = priority_inferencer.infer(bestFitness=best_fitness, avgFitness=avg_fitness, avgFitChange=avg_fit_change)
 
         if verbose:

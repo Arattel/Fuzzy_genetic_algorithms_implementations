@@ -29,7 +29,8 @@ class Simulation:
         self.crossover = crossover
     
     @profiler
-    def run(self, n_epochs: int =  20, seed: int = 42, percent_males_reproducing=None, population_scale=1,  mutation_scale = .2, n_partitions: int = 5) -> None:
+    def run(self, n_epochs: int =  20, seed: int = 42, percent_males_reproducing=None, population_scale=1,  mutation_scale = .2, n_partitions: int = 5, 
+            verbose=False) -> None:
         if percent_males_reproducing is not None:
             self.cfg.PERCENT_MALES_REPRODUCING = percent_males_reproducing
 
@@ -93,6 +94,17 @@ class Simulation:
             # Removing "old" genomes 
             lifetime = calculate_lifetime(L=Config.L, U = Config.U, fitness=fitness, age=age)
             to_remove = lifetime >= 1.0
+
+            if epoch % 10 == 0 and verbose: 
+                print(f'{epoch=}, {genomes.shape[0]=}')
+
+            # This condition prevents the population from growing more than x10 from the initial one
+            if genomes.shape[0] > self.cfg.N * 10:
+              
+                to_remove_additional = genomes.shape[0] - self.cfg.N * 10
+                to_remove_indices = np.argsort(lifetime)[::-1][:to_remove_additional]
+                to_remove[to_remove_indices] = True
+            
             genomes = genomes[~to_remove, :]
             gender =  gender[~to_remove]
             age =  age[~to_remove]

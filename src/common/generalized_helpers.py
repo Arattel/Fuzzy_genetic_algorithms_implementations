@@ -32,7 +32,7 @@ def _generate_bin_name(index: int, n_bins: int) -> str:
 
 
 
-def generate_var_terms(universe: tuple[float], trapezoid_points: tuple[float], n_terms: int = 4) -> list[fl.Term]:
+def generate_var_terms(universe: tuple[float], trapezoid_points: tuple[float], n_terms: int = 4, type: str='trapezoid') -> list[fl.Term]:
     """Generates terms given universe, trapezoid points and number of term
 
     Args:
@@ -44,12 +44,24 @@ def generate_var_terms(universe: tuple[float], trapezoid_points: tuple[float], n
         list[fl.Term]: list of terms
     """
     points = np.linspace(trapezoid_points[0], trapezoid_points[1], n_terms)
-    terms = [fl.Trapezoid("first_bin", universe[0] - 1, universe[0], points[0], points[1]),
+
+    if type == 'trapezoid':
+        terms = [fl.Trapezoid("first_bin", universe[0] - 1, universe[0], points[0], points[1]),
              fl.Trapezoid("last_bin", points[-2], points[-1], universe[1], universe[1] + 1),]
+        if len(points) > 2: 
+            for i in range(n_terms - 2):
+                index = i + 2
+                term = fl.Triangle(f'bin_{index}', points[i], points[i + 1], points[i + 2])
+                terms.append(term)
+    elif type == 'bell': 
+        terms = [fl.PiShape("first_bin", universe[0] - 1, top_left=universe[0], top_right=points[0], bottom_right=points[1]),
+             fl.PiShape("last_bin", points[-2], top_left= points[-1], top_right= universe[1],  bottom_right= universe[1] + 1),]
+        
+        if len(points) > 2: 
+            for i in range(n_terms - 2):
+                index = i + 2
+                term = fl.PiShape(f'bin_{index}', points[i], points[i + 1], points[i + 1], points[i + 2])
+                terms.append(term)
     
-    if len(points) > 2: 
-        for i in range(n_terms - 2):
-            index = i + 2
-            term = fl.Triangle(f'bin_{index}', points[i], points[i + 1], points[i + 2])
-            terms.append(term)
+   
     return terms

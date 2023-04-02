@@ -47,9 +47,9 @@ def experiments_gendered(func, n_experiments=5, epochs=500, N=500, n_partitions=
     current_timestamp = _get_ts()
 
     # File outputs
-    output_params = f'{fn_name}_efga_params_{current_timestamp}.json'
+    output_params = f'{fn_name}_gendered_params_{current_timestamp}.json'
     output_params = os.path.join(log_dir, output_params)
-    output_experiment_logs = f'{fn_name}_experiment_efga_logs_{current_timestamp}.csv'
+    output_experiment_logs = f'{fn_name}_experiments_gendered_logs_{current_timestamp}.csv'
     output_experiment_logs = os.path.join(log_dir, output_experiment_logs)
     output_plot = f'{fn_name}_gendered_summary_plot_{current_timestamp}.png'
     output_plot = os.path.join(plot_dir, output_plot)

@@ -5,7 +5,7 @@ from scipy.spatial import distance_matrix
 from tqdm import tqdm
 
 from .helpers import (calculate_lifetime)
-from ..common.utils import (quadratic_fitness, mutate_single_point, crossover, minus_sign)
+from ..common.utils import (quadratic_fitness, mutation, crossover, minus_sign, generate_population)
 from .conf.gendered_selection_config import Config
 from .faster_fuzzy_logic.infer_partner_age import Inferrer
 from .faster_fuzzy_logic.parallel_parition_inferrer import ParallelInferrer
@@ -19,7 +19,7 @@ def schwefel(genome):
 
 
 class Simulation:
-    def __init__(self, conf: Config, fitness_fn=None, mutation=None, crossover=None) -> None:
+    def __init__(self, conf: Config, fitness_fn=None, mutation=None, crossover=None, ndim: int = 5) -> None:
         self.cfg = conf
 
         # Given that our simulation is geared towards maximization task, we transform a non-negative function to be 
@@ -27,9 +27,11 @@ class Simulation:
         self.fitness_fn = minus_sign(fitness_fn)
         self.mutation = mutation
         self.crossover = crossover
+        self.ndim = ndim
     
     @profiler
     def run(self, n_epochs: int =  20, seed: int = 42, percent_males_reproducing=None, population_scale=1,  mutation_scale = .2, n_partitions: int = 5, 
+            p_mutation: float  = .2,
             verbose=False) -> None:
         if percent_males_reproducing is not None:
             self.cfg.PERCENT_MALES_REPRODUCING = percent_males_reproducing
@@ -39,7 +41,8 @@ class Simulation:
         FS =  ParallelInferrer(n_partitions=n_partitions)
         
         # Generate initial population
-        genomes = np.random.uniform(-population_scale, population_scale, size=(self.cfg.N, 5))
+        genomes =  generate_population(seed=seed, lower=-population_scale, higher=population_scale, 
+                                       N_individuals=self.cfg.N, N_dimensions=self.ndim)
         fitness = np.apply_along_axis(self.fitness_fn, 1, genomes)
         N_FITNESS_FN_CALLS += genomes.shape[0]
         gender = (np.random.rand(self.cfg.N) >= .5).astype(int)
@@ -64,6 +67,9 @@ class Simulation:
             random_males = np.random.choice(male_indices, size=to_select)
             
             lifetime = calculate_lifetime(L=self.cfg.L, U = self.cfg.U, fitness=fitness, age=age)
+            if epoch == 1:
+                youngest = np.argsort(lifetime)[:10]
+                print(fitness[youngest])
             diversity = age[male_indices] / lifetime[male_indices]
             population_diversity = diversity.mean()
             
@@ -85,9 +91,11 @@ class Simulation:
             age = np.concatenate([age, np.zeros(to_select)])
             gender = np.concatenate([gender, (np.random.rand(children.shape[0]) >= .5).astype(int)])
             
-            # Calculating fitness again
-            
-            genomes = np.apply_along_axis(self.mutation(mutation_scale), 1, genomes)
+            # Calculating fitness again 
+            to_mutate = np.arange(genomes.shape[0]) 
+            to_mutate = np.random.choice(to_mutate, size=np.ceil(genomes.shape[0] * p_mutation).astype(int))
+
+            genomes[to_mutate] = np.apply_along_axis(self.mutation(mutation_scale), 1, genomes[to_mutate])
             fitness = np.apply_along_axis(self.fitness_fn, 1, genomes)
             N_FITNESS_FN_CALLS += genomes.shape[0]
             
@@ -96,7 +104,8 @@ class Simulation:
             to_remove = lifetime >= 1.0
 
             if epoch % 10 == 0 and verbose: 
-                print(f'{epoch=}, {genomes.shape[0]=}')
+                print(f'{epoch=}, {genomes.shape[0]=}, {np.max(fitness)=}')
+                print(self.cfg.N)
 
             # This condition prevents the population from growing more than x10 from the initial one
             if genomes.shape[0] > self.cfg.N * 10:
@@ -104,6 +113,8 @@ class Simulation:
                 to_remove_additional = genomes.shape[0] - self.cfg.N * 10
                 to_remove_indices = np.argsort(lifetime)[::-1][:to_remove_additional]
                 to_remove[to_remove_indices] = True
+
+                self.cfg.PERCENT_MALES_REPRODUCING -= .001
             
             genomes = genomes[~to_remove, :]
             gender =  gender[~to_remove]
@@ -126,6 +137,6 @@ class Simulation:
         
 
 if __name__ == '__main__':
-    s =  Simulation(conf=Config(), fitness_fn=schwefel, mutation=mutate_single_point, crossover=crossover)
-    s.run(n_epochs=120)
-    profiler.print_stats()
+    s =  Simulation(conf=Config(N=120), fitness_fn=quadratic_fitness, mutation=mutation, crossover=crossover)
+    s.run(n_epochs=1000, verbose=True)
+    # profiler.print_stats()

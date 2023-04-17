@@ -11,7 +11,8 @@ from src.elegant_fuzzy_genetic_algorithms.helpers.heap_helpers import (create_he
                                                                        approximate_topk_indices, update_parents_with_indices)
 from src.elegant_fuzzy_genetic_algorithms.helpers.all_params_wrapper import AllEFGAParamsParallelWrapper
 from src.elegant_fuzzy_genetic_algorithms.conf.param_inference_config import Conf
-from src.common.utils import (quadratic_fitness, _mutate_single_point, crossover_2, mutate_single_point, crossover, mutation)
+from src.common.utils import (quadratic_fitness, _mutate_single_point, crossover_2, mutate_single_point, crossover, mutation, 
+                              generate_population)
 from src.gendered_selection.main import Simulation
 from src.gendered_selection.conf.gendered_selection_config import Config as GenderedSelectionCOnfig
 
@@ -20,7 +21,7 @@ class SimulationConfig:
     x_range: float = 2000
 
 def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = Conf.default_params, conf: SimulationConfig = SimulationConfig(), fitness_fn = None, 
-               mutation_scale = None, population_scale=None, seed=42,  n_terms_params: int = 3, n_terms_priority: int = 3,):
+               mutation_scale = None, population_scale=None, seed=42,  n_terms_params: int = 3, n_terms_priority: int = 3, ndim: int = 5):
     np.random.seed(seed)
     if mutation_scale is not None:
         conf.mutation_scale = mutation_scale
@@ -35,7 +36,11 @@ def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = C
     n_subpop_individuals = np.round(N * params['subPopSize']).astype(int)
     
     
-    genomes = np.random.uniform(low=-conf.x_range, high=conf.x_range, size=(N, 5))
+    genomes =  generate_population(lower=-conf.x_range, higher=conf.x_range, 
+                                   N_individuals=N, 
+                                   N_dimensions=ndim, 
+                                   seed=seed)
+    
     fitness = np.apply_along_axis(fitness_fn, 1, genomes)
     N_FITNESS_FN_CALLS += genomes.shape[0]
     worst_initial_fitness = np.max(fitness)

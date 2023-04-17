@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 from ..common.fitness import griewank
-from ..common.utils import mutation, crossover_2
+from ..common.utils import mutation, crossover_2, generate_population
 
 
 
@@ -37,7 +37,10 @@ class GA:
     
     def run(self, num_epochs, population_size = 1000, top_percent=.4, verbose=False, seed: int =  42):
         np.random.seed(seed)
-        population = np.random.uniform(-self.population_scale, self.population_scale, size=(population_size, self.ndim))
+        
+        population = generate_population(lower=-self.population_scale, higher=self.population_scale, 
+                                         N_individuals=population_size, 
+                                         N_dimensions=self.ndim, seed=seed)
         history = []
         ncalls = 0
         for epoch in range(num_epochs):

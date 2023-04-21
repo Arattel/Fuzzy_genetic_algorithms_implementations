@@ -4,6 +4,8 @@ from typing import Union
 import numpy as np
 import faiss
 
+from .utils import cartesian
+
 
 def generate_search_space(n_splits: Union[tuple[int], int], ranges: list[tuple[float]]  = [(0, 1), (0, 1)]):
     """Generates space of all combinations of points in range
@@ -18,13 +20,14 @@ def generate_search_space(n_splits: Union[tuple[int], int], ranges: list[tuple[f
 
     # Making it tuple
     if isinstance(n_splits, int):
-        n_splits = (n_splits, n_splits)
+        n_splits = tuple([n_splits for i in range(len(ranges))])
 
+    ranges = [ np.linspace(start=ranges[i][0], stop=ranges[i][1], num=n_splits[i]) for i in range(len(ranges))]
     
-    range_1 = np.linspace(start=ranges[0][0], stop=ranges[0][1], num=n_splits[0])
-    range_2 = np.linspace(start=ranges[1][0], stop=ranges[1][1], num=n_splits[1])
+    # range_1 =
+    # range_2 = np.linspace(start=ranges[1][0], stop=ranges[1][1], num=n_splits[1])
 
-    params_combinations = np.array(np.meshgrid(range_1, range_2)).T.reshape(-1, 2)
+    params_combinations = cartesian(ranges)
 
     return params_combinations
 

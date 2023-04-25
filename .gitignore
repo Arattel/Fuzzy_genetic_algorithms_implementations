@@ -7,3 +7,5 @@ main.py.lprof
 img/
 *.csv
 indices
+*.pkl
+backup_approx_non_approx

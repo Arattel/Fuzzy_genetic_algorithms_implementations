@@ -21,7 +21,7 @@ class SimulationConfig:
     x_range: float = 2000
 
 def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = Conf.default_params, conf: SimulationConfig = SimulationConfig(), fitness_fn = None, 
-               mutation_scale = None, population_scale=None, seed=42,  n_terms_params: int = 3, n_terms_priority: int = 3, ndim: int = 5):
+               mutation_scale = None, population_scale=None, seed=42,  n_terms_params: int = 3, n_terms_priority: int = 3, ndim: int = 5, use_approx = True):
     np.random.seed(seed)
     if mutation_scale is not None:
         conf.mutation_scale = mutation_scale
@@ -29,7 +29,7 @@ def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = C
     if population_scale is not None:
         conf.x_range = population_scale
     
-    priority_inferencer =  AllEFGAParamsParallelWrapper(n_terms_params=n_terms_params, n_terms_priority=n_terms_priority)
+    priority_inferencer =  AllEFGAParamsParallelWrapper(n_terms_params=n_terms_params, n_terms_priority=n_terms_priority, use_approx=use_approx)
 
     N_FITNESS_FN_CALLS: int = 0
     params = default_params

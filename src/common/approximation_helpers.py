@@ -33,7 +33,7 @@ def generate_search_space(n_splits: Union[tuple[int], int], ranges: list[tuple[f
 
 
 
-def init_param_index(params_combinations: np.array) -> faiss.Index:
+def init_param_index(params_combinations: np.array, approx_inf: bool = False) -> faiss.Index:
     """Given combination of parameters creates Index object for faster search
 
     Args:
@@ -42,9 +42,17 @@ def init_param_index(params_combinations: np.array) -> faiss.Index:
     Returns:
         faiss.Index: Faiss index object
     """
-    param_index = faiss.IndexFlatL2(params_combinations.shape[1])
-    param_index.add(params_combinations)
-    return param_index
+    if approx_inf:
+        ndim = params_combinations.shape[1]
+        quantizer = faiss.IndexFlatL2(ndim) 
+        index = faiss.IndexIVFFlat(quantizer, ndim, 100)
+        index.train(params_combinations)
+        index.add(params_combinations)
+        return index
+    else:
+        param_index = faiss.IndexFlatL2(params_combinations.shape[1])
+        param_index.add(params_combinations)
+        return param_index
 
 
 def estimate_by_index(index: faiss.Index, y: np.array, query: np.array):

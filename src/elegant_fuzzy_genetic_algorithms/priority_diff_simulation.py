@@ -26,7 +26,8 @@ def simulation_priorities(  N = 50, epochs: int =  100, verbose = False, default
     if population_scale is not None:
         conf.x_range = population_scale
     
-    priority_inferencer =  AllEFGAParamsParallelWrapper(n_terms_params=n_terms_params, n_terms_priority=n_terms_priority)
+    priority_inferencer =  AllEFGAParamsParallelWrapper(n_terms_params=n_terms_params, n_terms_priority=n_terms_priority, 
+                                                        use_approx=False)
 
     N_FITNESS_FN_CALLS: int = 0
     params = default_params

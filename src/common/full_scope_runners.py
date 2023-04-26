@@ -17,7 +17,7 @@ def _get_ts():
     return ts
 
 def experiments_efga(func, n_experiments=5, epochs=500, N=500, n_terms_priority=6, n_terms_params=3, log_dir: str = 'log', 
-                     plot_dir: str = 'img', population_scale=500, mutation_scale=.5,):
+                     plot_dir: str = 'img', population_scale=500, mutation_scale=.5, use_approx: bool = True):
     fn_name = func.__name__
     current_timestamp = _get_ts()
 
@@ -32,7 +32,7 @@ def experiments_efga(func, n_experiments=5, epochs=500, N=500, n_terms_priority=
     experiment_logs, params = run_experiments_efga(n_experiments=n_experiments, 
                                                    epochs=epochs, N=N, n_terms_priority=n_terms_priority,
                                                     n_terms_params=n_terms_params, population_scale=population_scale, mutation_scale=mutation_scale, 
-                                                    fitness_fn=func)
+                                                    fitness_fn=func, use_approx=use_approx)
     
     with open(output_params, 'w') as f:
         json.dump(params, f)
@@ -42,7 +42,7 @@ def experiments_efga(func, n_experiments=5, epochs=500, N=500, n_terms_priority=
     figure.savefig(output_plot)
 
 def experiments_gendered(func, n_experiments=5, epochs=500, N=500, n_partitions=3, log_dir: str = 'log', 
-                     plot_dir: str = 'img',  population_scale=500, mutation_scale=.5):
+                     plot_dir: str = 'img',  population_scale=500, mutation_scale=.5, use_approx: bool = True):
     fn_name = func.__name__
     current_timestamp = _get_ts()
 
@@ -57,7 +57,7 @@ def experiments_gendered(func, n_experiments=5, epochs=500, N=500, n_partitions=
     experiment_logs, params = run_experiments_gendered(n_experiments=n_experiments, 
                                                    epochs=epochs, N=N,
                                                     n_partitions=n_partitions,  population_scale=population_scale, 
-                                                    mutation_scale=mutation_scale, fitness_fn=func)
+                                                    mutation_scale=mutation_scale, fitness_fn=func, use_approx=use_approx)
     
     with open(output_params, 'w') as f:
         json.dump(params, f)

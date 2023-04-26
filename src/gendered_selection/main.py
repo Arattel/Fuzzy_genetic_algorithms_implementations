@@ -9,6 +9,7 @@ from ..common.utils import (quadratic_fitness, mutation, crossover, minus_sign, 
 from .conf.gendered_selection_config import Config
 from .faster_fuzzy_logic.infer_partner_age import Inferrer
 from .faster_fuzzy_logic.parallel_parition_inferrer import ParallelInferrer
+from .faster_fuzzy_logic.cached_age_inferrer import CachedAgeEstimator
 import line_profiler
 
 profiler = line_profiler.LineProfiler()
@@ -32,13 +33,13 @@ class Simulation:
     @profiler
     def run(self, n_epochs: int =  20, seed: int = 42, percent_males_reproducing=None, population_scale=1,  mutation_scale = .2, n_partitions: int = 5, 
             p_mutation: float  = .2,
-            verbose=False) -> None:
+            verbose=False, use_approx: bool = True) -> None:
         if percent_males_reproducing is not None:
             self.cfg.PERCENT_MALES_REPRODUCING = percent_males_reproducing
 
         np.random.seed(seed)
         N_FITNESS_FN_CALLS: int = 0
-        FS =  ParallelInferrer(n_partitions=n_partitions)
+        FS =  ParallelInferrer(n_partitions=n_partitions) if not use_approx else CachedAgeEstimator(n_partitions=n_partitions)
         
         # Generate initial population
         genomes =  generate_population(seed=seed, lower=-population_scale, higher=population_scale, 
@@ -67,13 +68,14 @@ class Simulation:
             random_males = np.random.choice(male_indices, size=to_select)
             
             lifetime = calculate_lifetime(L=self.cfg.L, U = self.cfg.U, fitness=fitness, age=age)
-            if epoch == 1:
+            if epoch == 1 and verbose:
                 youngest = np.argsort(lifetime)[:10]
                 print(fitness[youngest])
             diversity = age[male_indices] / lifetime[male_indices]
             population_diversity = diversity.mean()
             
-            female_preferred_age =  FS.multiprocessing_preferred_age(lifetime=lifetime, population_diversity=population_diversity, male_indices_to_reproduce=random_males)
+            female_preferred_age =  FS.preferred_age(lifetime=lifetime, population_diversity=population_diversity, male_indices_to_reproduce=random_males) 
+    
             # female_preferred_age = np.array([FS.infer_partner_age(age=lifetime[i], diversity=population_diversity) for i in random_males])
             mate_selection = np.argmin(distance_matrix(female_preferred_age.reshape(-1, 1), lifetime[female_indices].reshape(-1, 1)), axis=1)
             

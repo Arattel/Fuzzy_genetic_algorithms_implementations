@@ -19,8 +19,9 @@ def age_index_and_y(n_partitions: int = 5) -> str:
 
 class CachedAgeEstimator:
     N_POINTS: Union[int, tuple[int]] = 200
-    def __init__(self, n_partitions: int = 5) -> None:
+    def __init__(self, n_partitions: int = 5, approx: bool = True) -> None:
         self.n_partitions = n_partitions
+        self.approx = approx
 
         self.index_pth, self.y_pth = age_index_and_y(n_partitions)
 
@@ -40,7 +41,7 @@ class CachedAgeEstimator:
 
         # Creating search space and index
         params_combinations = generate_search_space(n_splits=self.N_POINTS, ranges=[(0, 1), (0, 10)])
-        param_index = init_param_index(params_combinations=params_combinations)
+        param_index = init_param_index(params_combinations=params_combinations, approx_inf=self.approx)
 
         # Generating inference fast
         y  = np.array([self.inferrer.infer_partner_age(*params_combinations[i, :]) for i in tqdm(range(params_combinations.shape[0]))])

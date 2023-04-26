@@ -24,7 +24,7 @@ class ParallelInferrer:
         self.inferrers = [GeneralizedInferrer(n_partitions=n_partitions) for _ in range(n_processes)]
         self.n_processes = n_processes
 
-    def multiprocessing_preferred_age(self, male_indices_to_reproduce: np.array, lifetime: np.array, population_diversity: float) -> np.array:
+    def preferred_age(self, male_indices_to_reproduce: np.array, lifetime: np.array, population_diversity: float) -> np.array:
         splits = np.array_split(male_indices_to_reproduce, self.n_processes)
         ctx = mp.get_context('fork')
         processes = [i for i in range(self.n_processes)]

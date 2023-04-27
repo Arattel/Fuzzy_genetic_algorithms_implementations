@@ -45,6 +45,7 @@ class GA:
         ncalls = 0
         for epoch in range(num_epochs):
             fitness = -np.apply_along_axis(self.fitness, 1, population)
+
             ncalls += fitness.shape[0]
             topk = np.argsort(fitness)[::-1][:int(top_percent * population_size)]
 
@@ -64,6 +65,8 @@ class GA:
             # print(reproduction_group.shape, children.shape)
             population = np.vstack([reproduction_group, children])
             population = np.apply_along_axis(self.mutate, 1, population)
+            population = np.clip(population, -self.population_scale, self.population_scale)
+
 
             history.append({'best_fitness': -np.max(fitness), 'avg_fitness': -np.mean(fitness), 
                         'epoch': epoch, 'ncalls': ncalls, 'seed': seed})

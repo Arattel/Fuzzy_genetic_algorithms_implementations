@@ -4,7 +4,7 @@ def schwefel(genome):
     """
     The original Schwefel function has a minimum value of 2094.91. 2094.91 was added to it to make it non-negative. 
     """
-    return  2094.91 -np.sum(genome * np.sin(np.sqrt(np.abs(genome))))
+    return  418.9829 * genome.shape[0] -np.sum(genome * np.sin(np.sqrt(np.abs(genome))))
 
 
 def griewank(genome):

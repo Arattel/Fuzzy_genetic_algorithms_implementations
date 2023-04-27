@@ -68,7 +68,7 @@ class GA:
             history.append({'best_fitness': -np.max(fitness), 'avg_fitness': -np.mean(fitness), 
                         'epoch': epoch, 'ncalls': ncalls, 'seed': seed})
             if verbose: 
-                print(f'Epoch: {epoch}, Min griewank_function: {-np.max(fitness)}')
+                print(f'Epoch: {epoch}, Min fitness fn: {-np.max(fitness)}')
                     
                     
                     
@@ -76,4 +76,4 @@ class GA:
         ncalls += fitness.shape[0]
 
         df = pd.DataFrame.from_records(history)
-        return population[np.argmax(fitness)], df
+        return df, population[np.argmax(fitness)], ncalls

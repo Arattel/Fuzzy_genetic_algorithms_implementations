@@ -12,7 +12,7 @@ from ...common.approximation_helpers import (generate_search_space, init_param_i
 BASE_PATH: str = './indices/'
 
 
-def calculate_priorities(params_combinations, n_terms_priority, nmax: int = 1000):
+def calculate_priorities(params_combinations, n_terms_priority, nmax: int = 1000, membership_function='trapezoid'):
     """Calculates priorities given parameter combinations
 
     Args:
@@ -25,7 +25,7 @@ def calculate_priorities(params_combinations, n_terms_priority, nmax: int = 1000
         _type_: _description_
     """
     n_iterations: int = (params_combinations.shape[0] // nmax) + 1
-    priority_inferencer = ParallelPriorityWrapper(n_terms_fitness=n_terms_priority)
+    priority_inferencer = ParallelPriorityWrapper(n_terms_fitness=n_terms_priority, membership_function=membership_function)
     
     priorities_final = []
     for i in range(n_iterations):
@@ -37,18 +37,23 @@ def calculate_priorities(params_combinations, n_terms_priority, nmax: int = 1000
     return priorities_final
 
 
-def priority_index_and_y(n_terms_fitness: int = 3) -> str:
-    name = f'priority_EFGA_index_{n_terms_fitness}.index'
-    name_y = f'priority_EFGA_y_{n_terms_fitness}.pkl'
+def priority_index_and_y(n_terms_fitness: int = 3, membership_fn: str = 'trapezoid') -> str:
+    if membership_fn == 'trapezoid': 
+        name = f'priority_EFGA_index_{n_terms_fitness}.index'
+        name_y = f'priority_EFGA_y_{n_terms_fitness}.pkl'
+    elif membership_fn == 'bell':
+        name = f'priority_EFGA_index_{n_terms_fitness}_{membership_fn}_membership.index'
+        name_y = f'priority_EFGA_y_{n_terms_fitness}_{membership_fn}_membership..pkl'
     return os.path.join(BASE_PATH, name), os.path.join(BASE_PATH, name_y)
 
 
 class CachedPriorityWrapper:
     N_POINTS: Union[int, tuple[int]] = 100
 
-    def __init__(self, n_terms_fitness: int = 3) -> None:
+    def __init__(self, n_terms_fitness: int = 3, membership_function='trapezoid') -> None:
+        self.membership_function = membership_function
         self.n_terms = n_terms_fitness
-        self.index_pth, self.y_pth = priority_index_and_y(n_terms_fitness)
+        self.index_pth, self.y_pth = priority_index_and_y(n_terms_fitness, membership_fn=self.membership_function)
 
         # If we have index, we read it. Otherwise, we generate it and cache
         if os.path.exists(self.index_pth) and os.path.exists(self.y_pth):
@@ -63,7 +68,7 @@ class CachedPriorityWrapper:
     def _generate_index(self):
         params_combinations = generate_search_space(self.N_POINTS)
         param_index = init_param_index(params_combinations)
-        y =  calculate_priorities(params_combinations, self.n_terms)
+        y =  calculate_priorities(params_combinations, self.n_terms, membership_function=self.membership_function)
 
         self.index = param_index
         self.y = y

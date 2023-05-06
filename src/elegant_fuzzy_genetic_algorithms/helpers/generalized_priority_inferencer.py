@@ -31,15 +31,17 @@ def generate_rules(n_terms_fitness: int) -> list[str]:
     return rules[::-1]
 
 class GeneralizedPriorityInferencer:
-    def __init__(self, n_terms_fitness=3) -> None:
+    def __init__(self, n_terms_fitness=3, membership_function='trapezoid') -> None:
         self.n_priority_bins = calculate_n_priority_bins(n_terms_fitness)
+        self.membership_function = membership_function
         self.first_cl = fl.InputVariable(
             name="first",
             enabled=True,
             minimum=0.0,
             maximum=1.0,
             lock_range=False,
-            terms=generate_var_terms(universe=(0, 1), trapezoid_points=(0, 1), n_terms=n_terms_fitness))
+            terms=generate_var_terms(universe=(0, 1), trapezoid_points=(0, 1), n_terms=n_terms_fitness, 
+                                     type=self.membership_function))
         
         self.second_cl = fl.InputVariable(
             name="second",
@@ -47,7 +49,8 @@ class GeneralizedPriorityInferencer:
             minimum=0.0,
             maximum=1.0,
             lock_range=False,
-            terms=generate_var_terms(universe=(0, 1), trapezoid_points=(0, 1), n_terms=n_terms_fitness))
+            terms=generate_var_terms(universe=(0, 1), trapezoid_points=(0, 1), n_terms=n_terms_fitness, 
+                                     type=self.membership_function))
         
         self.priority = fl.OutputVariable(
             name="priority",
@@ -57,7 +60,8 @@ class GeneralizedPriorityInferencer:
             lock_range=False,
             defuzzifier=fl.Centroid(),
             aggregation=fl.Maximum(),
-            terms=generate_var_terms(universe=(-1, 1), trapezoid_points=(-1, 1), n_terms=self.n_priority_bins))
+            terms=generate_var_terms(universe=(-1, 1), trapezoid_points=(-1, 1), n_terms=self.n_priority_bins, 
+                                     type=self.membership_function))
         
         self.engine = fl.Engine(name="approximation", description="")
         self.engine.input_variables = [self.first_cl, self.second_cl]

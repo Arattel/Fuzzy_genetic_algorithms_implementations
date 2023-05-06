@@ -21,7 +21,8 @@ class SimulationConfig:
     x_range: float = 2000
 
 def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = Conf.default_params, conf: SimulationConfig = SimulationConfig(), fitness_fn = None, 
-               mutation_scale = None, population_scale=None, seed=42,  n_terms_params: int = 3, n_terms_priority: int = 3, ndim: int = 5, use_approx = True):
+               mutation_scale = None, population_scale=None, seed=42,  n_terms_params: int = 3, n_terms_priority: int = 3, ndim: int = 5, membership_function = 'trapezoid', 
+               use_approx = True):
     np.random.seed(seed)
     if mutation_scale is not None:
         conf.mutation_scale = mutation_scale
@@ -29,7 +30,8 @@ def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = C
     if population_scale is not None:
         conf.x_range = population_scale
     
-    priority_inferencer =  AllEFGAParamsParallelWrapper(n_terms_params=n_terms_params, n_terms_priority=n_terms_priority, use_approx=use_approx)
+    priority_inferencer =  AllEFGAParamsParallelWrapper(n_terms_params=n_terms_params, n_terms_priority=n_terms_priority, membership_function=membership_function, 
+                                                         use_approx=use_approx)
 
     N_FITNESS_FN_CALLS: int = 0
     params = default_params
@@ -50,11 +52,12 @@ def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = C
     history = []
     
     for i in tqdm(range(epochs)):
+        print(i)
         # Indices of parents in heap & fitness
         topk = np.arange(n_subpop_individuals)
-        subpop_fitness = np.array([heap[topk[i]][2] for i in range(n_subpop_individuals)])
+        subpop_fitness = np.array([heap[topk[x]][2] for x in range(n_subpop_individuals)])
         # Indices of parents in genome array    
-        topk_indices = [heap[topk[i]][1] for i in range(n_subpop_individuals)]
+        topk_indices = [heap[topk[x]][1] for x in range(n_subpop_individuals)]
         
         # Calculate best fitness
         avg_fitness = np.mean(subpop_fitness)
@@ -78,10 +81,10 @@ def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = C
         parent_2 = parent_2[do_crossover]
         
         child_genomes = []
-        for i in range(parent_1.shape[0]):
+        for j in range(parent_1.shape[0]):
             # Getting genomes of the parent pair
-            p1 = genomes[heap[parent_1[i]][1]]
-            p2 = genomes[heap[parent_2[i]][1]]
+            p1 = genomes[heap[parent_1[j]][1]]
+            p2 = genomes[heap[parent_2[j]][1]]
             
             c1, c2 = crossover_2(p1, p2)
             child_genomes += [c1, c2]
@@ -97,7 +100,7 @@ def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = C
             
             
         # Calculating children fitness, replacing worst solutions with good childre
-        prev_avg_fitness = np.mean([i[2] for i in heap])
+        prev_avg_fitness = np.mean([x[2] for x  in heap])
         child_fitness = np.apply_along_axis(fitness_fn, 1, child_genomes) / worst_initial_fitness
         N_FITNESS_FN_CALLS += child_genomes.shape[0]
         use_to_replace = child_fitness < avg_fitness
@@ -105,15 +108,6 @@ def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = C
         if use_to_replace.sum():
             genomes, heap = replace_leaves_with_children(solutions=genomes, heap=heap, children=child_genomes[use_to_replace], children_fitness=child_fitness[use_to_replace])
     
-        # updating parent priorities & mutating parents
-        # priority_updates = []
-        # parent_indices = []
-        # for i in range(parent_1.shape[0]):
-        #     c1_fitness, c2_fitness = child_fitness[i * 2], child_fitness[i * 2 + 1]
-        #     priority_update = -priority_inferencer.infer_priority(c1_fitness, c2_fitness)
-        #     priority_updates += [priority_update, priority_update]
-        #     parent_indices += [parent_1[i], parent_2[i]]
-        
         c1_fitness, c2_fitness = child_fitness[::2], child_fitness[1::2]
         priority_updates = np.repeat(-priority_inferencer.infer_priority(c1_fitness, c2_fitness), 2)
         parent_indices = np.zeros(parent_1.shape[0] * 2, dtype=int)
@@ -133,7 +127,7 @@ def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = C
         heap = update_parents_with_indices(heap=heap, parent_indices=parent_indices, update_values=priority_updates)
         hq.heapify(heap)
     
-        cur_avg_fitness = np.mean([i[2] for i in heap])
+        cur_avg_fitness = np.mean([x[2] for x in heap])
         avg_fit_change = np.abs(prev_avg_fitness - cur_avg_fitness)
         
         params = priority_inferencer.infer(bestFitness=best_fitness, avgFitness=avg_fitness, avgFitChange=avg_fit_change)

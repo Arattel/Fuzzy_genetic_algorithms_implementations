@@ -28,7 +28,7 @@ def _mutate_single_point(genome):
 
 def mutation(loc,):
     def _mutation(genome):
-        return genome + np.random.normal(loc, scale=3)
+        return genome + np.random.normal(0, scale=loc)
     return _mutation
 
 def minus_sign(fn):

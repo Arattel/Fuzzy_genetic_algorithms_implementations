@@ -76,7 +76,7 @@ class Simulation:
             
 
             female_ages.append(lifetime[female_indices])
-            female_preferred_age =  FS.multiprocessing_preferred_age(lifetime=lifetime, population_diversity=population_diversity, male_indices_to_reproduce=random_males)
+            female_preferred_age =  FS.preferred_age(lifetime=lifetime, population_diversity=population_diversity, male_indices_to_reproduce=random_males)
             # female_preferred_age = np.array([FS.infer_partner_age(age=lifetime[i], diversity=population_diversity) for i in random_males])
             mate_selection = np.argmin(distance_matrix(female_preferred_age.reshape(-1, 1), lifetime[female_indices].reshape(-1, 1)), axis=1)
             

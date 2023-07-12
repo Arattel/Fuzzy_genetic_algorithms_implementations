@@ -55,7 +55,7 @@ def generate_gendered_rules(n_bins: int =  4) -> list[str]:
 
 
 class GeneralizedInferrer(object):
-    def __init__(self, n_partitions: int, membership_function='trapezoid') -> None:
+    def __init__(self, n_partitions: int, membership_function='trapezoid', t_norm=None, t_conorm=None) -> None:
         self.membership_function = membership_function
         self.age = fl.InputVariable('age', enabled=True, minimum=0, maximum=1, 
                            terms=generate_var_terms(universe=(0, 1), trapezoid_points=(.25, .85), n_terms=n_partitions, 
@@ -78,13 +78,26 @@ class GeneralizedInferrer(object):
         self.engine.input_variables = [self.age, self.diversity]
         self.engine.output_variables = [self.partner_age]
 
+        self.t_norm = None
+        self.t_conorm = None
+
+        if t_norm == 'min':
+            self.t_norm = fl.Minimum()
+        elif t_norm == 'product': 
+            self.t_norm = fl.AlgebraicProduct()
+
+        if t_conorm == 'max': 
+            self.t_conorm = fl.Maximum()
+        elif t_conorm == 'sum':
+            self.t_conorm = fl.AlgebraicSum()
+
         self.engine.rule_blocks = [
             fl.RuleBlock(
             name="",
             description="",
             enabled=True,
-            conjunction=fl.Minimum(),
-            disjunction=fl.Maximum(),
+            conjunction=self.t_norm,
+            disjunction=self.t_conorm,
             implication=fl.Minimum(),
             activation=fl.General(),
             rules= [fl.Rule.create(rule.strip(), self.engine) for rule in generate_gendered_rules(n_bins=n_partitions)])]

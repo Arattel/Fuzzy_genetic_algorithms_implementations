@@ -24,10 +24,12 @@ def age_index_and_y(n_partitions: int = 5, membership_function='trapezoid') -> s
 
 class CachedAgeEstimator:
     N_POINTS: Union[int, tuple[int]] = 200
-    def __init__(self, n_partitions: int = 5, approx: bool = True, membership_function='trapezoid') -> None:
+    def __init__(self, n_partitions: int = 5, approx: bool = True, membership_function='trapezoid',  t_conorm=None, t_norm=None) -> None:
         self.n_partitions = n_partitions
         self.approx = approx
         self.membership_function = membership_function
+        self.t_norm = t_norm
+        self.t_conorm = t_conorm
 
         self.index_pth, self.y_pth = age_index_and_y(n_partitions, membership_function=membership_function)
 
@@ -43,7 +45,8 @@ class CachedAgeEstimator:
 
     def _generate_index(self):
         # Creating an inferrer
-        self.inferrer = GeneralizedInferrer(self.n_partitions, membership_function=self.membership_function)
+        self.inferrer = GeneralizedInferrer(self.n_partitions, membership_function=self.membership_function,  t_conorm=self.t_conorm, 
+                                            t_norm=self.t_norm)
 
         # Creating search space and index
         params_combinations = generate_search_space(n_splits=self.N_POINTS, ranges=[(0, 1), (0, 10)])

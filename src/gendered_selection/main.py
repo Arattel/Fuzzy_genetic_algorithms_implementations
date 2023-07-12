@@ -33,13 +33,15 @@ class Simulation:
     @profiler
     def run(self, n_epochs: int =  20, seed: int = 42, percent_males_reproducing=None, population_scale=1,  mutation_scale = .2, n_partitions: int = 5, 
             p_mutation: float  = .2,
-            verbose=False, use_approx: bool = True, ndim=5, membership_function='trapezoid') -> None:
+            verbose=False, use_approx: bool = True, ndim=5, membership_function='trapezoid', 
+            t_conorm: str = 'max', t_norm: str='min') -> None:
         if percent_males_reproducing is not None:
             self.cfg.PERCENT_MALES_REPRODUCING = percent_males_reproducing
 
         np.random.seed(seed)
         N_FITNESS_FN_CALLS: int = 0
-        FS =  ParallelInferrer(n_partitions=n_partitions, membership_function=membership_function) if not use_approx else CachedAgeEstimator(n_partitions=n_partitions, membership_function=membership_function)
+        FS =  ParallelInferrer(n_partitions=n_partitions, membership_function=membership_function,  t_conorm=t_conorm, t_norm=t_norm) if not use_approx else CachedAgeEstimator(n_partitions=n_partitions, membership_function=membership_function, 
+                                                                                                                                             t_conorm=t_conorm, t_norm=t_norm)
         
         # Generate initial population
         genomes =  generate_population(seed=seed, lower=-population_scale, higher=population_scale, 

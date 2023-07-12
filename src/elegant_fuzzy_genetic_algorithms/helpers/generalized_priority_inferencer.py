@@ -67,13 +67,25 @@ class GeneralizedPriorityInferencer:
         self.engine.input_variables = [self.first_cl, self.second_cl]
         self.engine.output_variables = [self.priority]
 
+
+        if t_norm == 'min':
+            self.t_norm = fl.Minimum()
+        elif t_norm == 'product': 
+            self.t_norm = fl.AlgebraicProduct()
+
+        if t_conorm == 'max': 
+            self.t_conorm = fl.Maximum()
+        elif t_conorm == 'sum':
+            self.t_conorm = fl.AlgebraicSum()
+
+
         self.engine.rule_blocks = [
             fl.RuleBlock(
             name="",
             description="",
             enabled=True,
-            conjunction=fl.Minimum() if t_norm == 'min' else fl.AlgebraicProduct(),
-            disjunction=fl.Maximum() if t_conorm == 'max' else fl.AlgebraicSum(),
+            conjunction=self.t_norm,
+            disjunction=self.t_conorm, 
             implication=fl.Minimum(),
             activation=fl.General(),
             rules= [fl.Rule.create(rule.strip(), self.engine) for rule in generate_rules(n_terms_fitness=n_terms_fitness)])]

@@ -3,6 +3,7 @@ from typing import Union
 
 import numpy as np
 import faiss
+from scipy.special import softmax
 
 from .utils import cartesian
 
@@ -56,6 +57,6 @@ def init_param_index(params_combinations: np.array, approx_inf: bool = False) ->
 
 
 def estimate_by_index(index: faiss.Index, y: np.array, query: np.array):
-    D, I = index.search(query, k=1)
-    estimations = y[I]
+    D, I = index.search(query, k=10)
+    estimations = (y[I] * softmax(D, axis=1)).sum(axis=1)
     return estimations

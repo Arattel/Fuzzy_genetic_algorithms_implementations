@@ -55,18 +55,22 @@ def generate_gendered_rules(n_bins: int =  4) -> list[str]:
 
 
 class GeneralizedInferrer(object):
-    def __init__(self, n_partitions: int) -> None:
+    def __init__(self, n_partitions: int, membership_function='trapezoid') -> None:
+        self.membership_function = membership_function
         self.age = fl.InputVariable('age', enabled=True, minimum=0, maximum=1, 
-                           terms=generate_var_terms(universe=(0, 1), trapezoid_points=(.25, .85), n_terms=n_partitions))
+                           terms=generate_var_terms(universe=(0, 1), trapezoid_points=(.25, .85), n_terms=n_partitions, 
+                                                    type=self.membership_function))
         
         self.diversity =  fl.InputVariable('diversity', enabled=True, minimum=0, maximum=10, 
-                           terms=generate_var_terms(universe=(0, 10), trapezoid_points=(2.5, 8.5), n_terms=n_partitions))
+                           terms=generate_var_terms(universe=(0, 10), trapezoid_points=(2.5, 8.5), n_terms=n_partitions, 
+                                                    type=self.membership_function))
         self.partner_age = fl.OutputVariable(
             'partner_age',
             enabled=True,
             minimum=0.0,
             maximum=1.0, 
-            terms=generate_var_terms(universe=(0, 1), trapezoid_points=(.25, .85), n_terms=n_partitions),
+            terms=generate_var_terms(universe=(0, 1), trapezoid_points=(.25, .85), n_terms=n_partitions,
+                                     type=self.membership_function),
             defuzzifier=fl.Centroid(),
             aggregation=fl.Maximum()
         )

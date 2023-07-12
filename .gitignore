@@ -5,6 +5,7 @@ main.py.lprof
 *.log
 *.zip
 img/
+results/
 *.csv
 indices
 *.pkl

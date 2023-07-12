@@ -12,18 +12,24 @@ from src.gendered_selection.faster_fuzzy_logic.generalized_partition_inferrer im
 
 
 BASE_PATH: str = './indices/'
-def age_index_and_y(n_partitions: int = 5) -> str:
-    name = f'age_gendered_index_{n_partitions}.index'
-    name_y = f'age_gendered_y_{n_partitions}.pkl'
+def age_index_and_y(n_partitions: int = 5, membership_function='trapezoid') -> str:
+    if membership_function == 'trapezoid':
+        name = f'age_gendered_index_{n_partitions}.index'
+        name_y = f'age_gendered_y_{n_partitions}.pkl'
+    elif membership_function == 'bell':
+        name = f'age_gendered_index_{n_partitions}_{membership_function}_membership.index'
+        name_y = f'age_gendered_y_{n_partitions}_{membership_function}_membership.pkl'
+
     return os.path.join(BASE_PATH, name), os.path.join(BASE_PATH, name_y)
 
 class CachedAgeEstimator:
     N_POINTS: Union[int, tuple[int]] = 200
-    def __init__(self, n_partitions: int = 5, approx: bool = True) -> None:
+    def __init__(self, n_partitions: int = 5, approx: bool = True, membership_function='trapezoid') -> None:
         self.n_partitions = n_partitions
         self.approx = approx
+        self.membership_function = membership_function
 
-        self.index_pth, self.y_pth = age_index_and_y(n_partitions)
+        self.index_pth, self.y_pth = age_index_and_y(n_partitions, membership_function=membership_function)
 
         # If we have index, we read it. Otherwise, we generate it and cache
         if os.path.exists(self.index_pth) and os.path.exists(self.y_pth):
@@ -37,7 +43,7 @@ class CachedAgeEstimator:
 
     def _generate_index(self):
         # Creating an inferrer
-        self.inferrer = GeneralizedInferrer(self.n_partitions)
+        self.inferrer = GeneralizedInferrer(self.n_partitions, membership_function=self.membership_function)
 
         # Creating search space and index
         params_combinations = generate_search_space(n_splits=self.N_POINTS, ranges=[(0, 1), (0, 10)])

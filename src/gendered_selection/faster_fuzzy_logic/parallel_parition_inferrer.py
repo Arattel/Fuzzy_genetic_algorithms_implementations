@@ -19,9 +19,9 @@ def infer_partner_ages(fs: GeneralizedInferrer, ages: np.array, diversity: float
     var.put((np.array([fs.infer_partner_age(age=a, diversity=diversity) for a in ages]), i))
 
 class ParallelInferrer:
-    def __init__(self, n_partitions: int = 4, n_processes: int = mp.cpu_count()) -> None:
+    def __init__(self, n_partitions: int = 4, n_processes: int = mp.cpu_count(), membership_function='trapezoid') -> None:
         # Initilizing a separate inferrer for each process
-        self.inferrers = [GeneralizedInferrer(n_partitions=n_partitions) for _ in range(n_processes)]
+        self.inferrers = [GeneralizedInferrer(n_partitions=n_partitions, membership_function=membership_function) for _ in range(n_processes)]
         self.n_processes = n_processes
 
     def preferred_age(self, male_indices_to_reproduce: np.array, lifetime: np.array, population_diversity: float) -> np.array:

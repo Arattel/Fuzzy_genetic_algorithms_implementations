@@ -52,7 +52,6 @@ def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = C
     history = []
     
     for i in tqdm(range(epochs)):
-        print(i)
         # Indices of parents in heap & fitness
         topk = np.arange(n_subpop_individuals)
         subpop_fitness = np.array([heap[topk[x]][2] for x in range(n_subpop_individuals)])

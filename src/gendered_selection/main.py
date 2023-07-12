@@ -33,17 +33,17 @@ class Simulation:
     @profiler
     def run(self, n_epochs: int =  20, seed: int = 42, percent_males_reproducing=None, population_scale=1,  mutation_scale = .2, n_partitions: int = 5, 
             p_mutation: float  = .2,
-            verbose=False, use_approx: bool = True) -> None:
+            verbose=False, use_approx: bool = True, ndim=5, membership_function='trapezoid') -> None:
         if percent_males_reproducing is not None:
             self.cfg.PERCENT_MALES_REPRODUCING = percent_males_reproducing
 
         np.random.seed(seed)
         N_FITNESS_FN_CALLS: int = 0
-        FS =  ParallelInferrer(n_partitions=n_partitions) if not use_approx else CachedAgeEstimator(n_partitions=n_partitions)
+        FS =  ParallelInferrer(n_partitions=n_partitions, membership_function=membership_function) if not use_approx else CachedAgeEstimator(n_partitions=n_partitions, membership_function=membership_function)
         
         # Generate initial population
         genomes =  generate_population(seed=seed, lower=-population_scale, higher=population_scale, 
-                                       N_individuals=self.cfg.N, N_dimensions=self.ndim)
+                                       N_individuals=self.cfg.N, N_dimensions=ndim)
         fitness = np.apply_along_axis(self.fitness_fn, 1, genomes)
         N_FITNESS_FN_CALLS += genomes.shape[0]
         gender = (np.random.rand(self.cfg.N) >= .5).astype(int)

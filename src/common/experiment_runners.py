@@ -37,7 +37,7 @@ def run_experiments_gendered(n_experiments: int = 5, fitness_fn=schwefel, popula
         history, best_solution, ncalls = sim.run(epochs, percent_males_reproducing=.31, 
                                                  population_scale=population_scale, mutation_scale=mutation_scale, 
                                                  seed=experiment, n_partitions=n_partitions, use_approx=use_approx, 
-                                                 membership_function=membership_function)
+                                                 membership_function=membership_function, ndim=ndim)
         history['ncalls'] = ncalls
         history['seed'] = experiment
         experiment_logs.append(history)

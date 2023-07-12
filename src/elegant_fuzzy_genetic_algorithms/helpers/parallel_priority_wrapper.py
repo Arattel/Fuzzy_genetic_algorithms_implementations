@@ -9,8 +9,10 @@ def infer_priority(fs: GeneralizedPriorityInferencer, c1, c2, var: mp.Queue, i: 
     return var.put((np.array([fs.infer_priority(c1[i], c2[i]) for i in range(c1.shape[0])]), i))
 
 class ParallelPriorityWrapper:
-    def __init__(self, n_terms_fitness: int = 3, n_processes: int = mp.cpu_count(), membership_function='trapezoid') -> None:
-        self.inferrers = [GeneralizedPriorityInferencer(n_terms_fitness=n_terms_fitness, membership_function=membership_function) for _ in range(n_processes)]
+    def __init__(self, n_terms_fitness: int = 3, n_processes: int = mp.cpu_count(), membership_function='trapezoid', 
+                 t_conorm=None, t_norm=None) -> None:
+        self.inferrers = [GeneralizedPriorityInferencer(n_terms_fitness=n_terms_fitness, membership_function=membership_function, 
+                                                        t_norm=t_norm, t_conorm=t_conorm) for _ in range(n_processes)]
         self.n_processes = n_processes
 
     def infer_priority(self, c1: np.array, c2: np.array) -> np.array:

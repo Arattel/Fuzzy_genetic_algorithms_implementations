@@ -31,7 +31,7 @@ def generate_rules(n_terms_fitness: int) -> list[str]:
     return rules[::-1]
 
 class GeneralizedPriorityInferencer:
-    def __init__(self, n_terms_fitness=3, membership_function='trapezoid') -> None:
+    def __init__(self, n_terms_fitness=3, membership_function='trapezoid', t_conorm=None, t_norm=None) -> None:
         self.n_priority_bins = calculate_n_priority_bins(n_terms_fitness)
         self.membership_function = membership_function
         self.first_cl = fl.InputVariable(
@@ -72,8 +72,8 @@ class GeneralizedPriorityInferencer:
             name="",
             description="",
             enabled=True,
-            conjunction=fl.Minimum(),
-            disjunction=fl.Maximum(),
+            conjunction=fl.Minimum() if t_norm == 'min' else fl.AlgebraicProduct(),
+            disjunction=fl.Maximum() if t_conorm == 'max' else fl.AlgebraicSum(),
             implication=fl.Minimum(),
             activation=fl.General(),
             rules= [fl.Rule.create(rule.strip(), self.engine) for rule in generate_rules(n_terms_fitness=n_terms_fitness)])]

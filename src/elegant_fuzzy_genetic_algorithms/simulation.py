@@ -22,7 +22,7 @@ class SimulationConfig:
 
 def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = Conf.default_params, conf: SimulationConfig = SimulationConfig(), fitness_fn = None, 
                mutation_scale = None, population_scale=None, seed=42,  n_terms_params: int = 3, n_terms_priority: int = 3, ndim: int = 5, membership_function = 'trapezoid', 
-               use_approx = True):
+               use_approx = True, t_conorm: str = 'max', t_norm: str='min'):
     np.random.seed(seed)
     if mutation_scale is not None:
         conf.mutation_scale = mutation_scale
@@ -31,7 +31,7 @@ def simulation(  N = 50, epochs: int =  100, verbose = False, default_params = C
         conf.x_range = population_scale
     
     priority_inferencer =  AllEFGAParamsParallelWrapper(n_terms_params=n_terms_params, n_terms_priority=n_terms_priority, membership_function=membership_function, 
-                                                         use_approx=use_approx)
+                                                         use_approx=use_approx,  t_conorm=t_conorm, t_norm=t_norm)
 
     N_FITNESS_FN_CALLS: int = 0
     params = default_params

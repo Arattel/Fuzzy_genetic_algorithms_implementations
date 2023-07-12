@@ -3,7 +3,7 @@ import fuzzylite as fl
 import numpy as np
 
 from ...common.generalized_helpers import (generate_var_terms, _generate_bin_name)
-
+from ...common.logical_connectives import connectives
 def check_bin_sizes_gendered(age_bins: int = 4, diversity_bins: int = 4):
     return age_bins ==  diversity_bins
 
@@ -96,8 +96,8 @@ class GeneralizedInferrer(object):
             name="",
             description="",
             enabled=True,
-            conjunction=self.t_norm,
-            disjunction=self.t_conorm,
+            conjunction=connectives[t_norm], 
+            disjunction=connectives[t_conorm],
             implication=fl.Minimum(),
             activation=fl.General(),
             rules= [fl.Rule.create(rule.strip(), self.engine) for rule in generate_gendered_rules(n_bins=n_partitions)])]

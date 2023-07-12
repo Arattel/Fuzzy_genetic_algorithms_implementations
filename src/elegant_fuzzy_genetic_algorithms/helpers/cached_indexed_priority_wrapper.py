@@ -8,6 +8,8 @@ import faiss
 
 from .parallel_priority_wrapper import ParallelPriorityWrapper
 from ...common.approximation_helpers import (generate_search_space, init_param_index, estimate_by_index)
+from ...common.naming import _base_file_name
+
 
 BASE_PATH: str = './indices/'
 
@@ -40,33 +42,10 @@ def calculate_priorities(params_combinations, n_terms_priority, nmax: int = 1000
 
 
 def priority_index_and_y(n_terms_fitness: int = 3, membership_fn: str = 'trapezoid', t_conorm: str = 'max', t_norm: str='min') -> str:
-    if membership_fn == 'trapezoid': 
-        name = f'priority_EFGA_index_{n_terms_fitness}.index'
-        name_y = f'priority_EFGA_y_{n_terms_fitness}.pkl'
-    elif membership_fn == 'bell':
-        name = f'priority_EFGA_index_{n_terms_fitness}_{membership_fn}_membership.index'
-        name_y = f'priority_EFGA_y_{n_terms_fitness}_{membership_fn}_membership.pkl'
-
-    if t_norm == 'min': 
-        pass
-    elif t_norm == 'product':
-        name = name.split('.')[0]
-        name = f'{name}_{t_norm}.index'
-
-        name_y = name_y.split('.')[0]
-        name_y = f'{name_y}_{t_norm}.pkl'
-
-    if t_conorm == 'max': 
-        pass
-
-    elif t_conorm == 'product':
-        name = name.split('.')[0]
-        name = f'{name}_{t_conorm}_conorm.index'
-
-        name_y = name_y.split('.')[0]
-        name_y = f'{name_y}_{t_conorm}_conorm.pkl'
-
-    return os.path.join(BASE_PATH, name), os.path.join(BASE_PATH, name_y)
+    name = _base_file_name('efga', n_terms_fitness, membership_fn, t_norm=t_norm, t_conorm=t_conorm)
+    index_name = f'{name}.index'
+    y_name = f'{name}_y.pkl'
+    return os.path.join(BASE_PATH, index_name), os.path.join(BASE_PATH, y_name)
 
 
 class CachedPriorityWrapper:

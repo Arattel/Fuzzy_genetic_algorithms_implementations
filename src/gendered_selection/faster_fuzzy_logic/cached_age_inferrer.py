@@ -9,21 +9,18 @@ import os
 
 from src.common.approximation_helpers import (generate_search_space, init_param_index, estimate_by_index)
 from src.gendered_selection.faster_fuzzy_logic.generalized_partition_inferrer import GeneralizedInferrer
+from ...common.naming import _base_file_name
 
 
 BASE_PATH: str = './indices/'
-def age_index_and_y(n_partitions: int = 5, membership_function='trapezoid') -> str:
-    if membership_function == 'trapezoid':
-        name = f'age_gendered_index_{n_partitions}.index'
-        name_y = f'age_gendered_y_{n_partitions}.pkl'
-    elif membership_function == 'bell':
-        name = f'age_gendered_index_{n_partitions}_{membership_function}_membership.index'
-        name_y = f'age_gendered_y_{n_partitions}_{membership_function}_membership.pkl'
-
-    return os.path.join(BASE_PATH, name), os.path.join(BASE_PATH, name_y)
+def age_index_and_y(n_partitions: int = 5, membership_function='trapezoid',  t_conorm=None, t_norm=None) -> str:
+    name = _base_file_name('gfga', n_partitions, membership_function, t_norm=t_norm, t_conorm=t_conorm)
+    index_name = f'{name}.index'
+    y_name = f'{name}_y.pkl'
+    return os.path.join(BASE_PATH, index_name), os.path.join(BASE_PATH, y_name)
 
 class CachedAgeEstimator:
-    N_POINTS: Union[int, tuple[int]] = 200
+    N_POINTS: Union[int, tuple[int]] = 100
     def __init__(self, n_partitions: int = 5, approx: bool = True, membership_function='trapezoid',  t_conorm=None, t_norm=None) -> None:
         self.n_partitions = n_partitions
         self.approx = approx
@@ -31,7 +28,7 @@ class CachedAgeEstimator:
         self.t_norm = t_norm
         self.t_conorm = t_conorm
 
-        self.index_pth, self.y_pth = age_index_and_y(n_partitions, membership_function=membership_function)
+        self.index_pth, self.y_pth = age_index_and_y(n_partitions, membership_function=membership_function, t_norm=t_norm, t_conorm=t_conorm)
 
         # If we have index, we read it. Otherwise, we generate it and cache
         if os.path.exists(self.index_pth) and os.path.exists(self.y_pth):

@@ -1,6 +1,7 @@
 import fuzzylite as fl
 
 from ...common.generalized_helpers import generate_var_terms, _generate_bin_name
+from ...common.logical_connectives import connectives
 
 def calculate_n_priority_bins(n_terms_fitness: int) -> int:
     return 2 * n_terms_fitness - 2 + 1
@@ -68,24 +69,14 @@ class GeneralizedPriorityInferencer:
         self.engine.output_variables = [self.priority]
 
 
-        if t_norm == 'min':
-            self.t_norm = fl.Minimum()
-        elif t_norm == 'product': 
-            self.t_norm = fl.AlgebraicProduct()
-
-        if t_conorm == 'max': 
-            self.t_conorm = fl.Maximum()
-        elif t_conorm == 'sum':
-            self.t_conorm = fl.AlgebraicSum()
-
 
         self.engine.rule_blocks = [
             fl.RuleBlock(
             name="",
             description="",
             enabled=True,
-            conjunction=self.t_norm,
-            disjunction=self.t_conorm, 
+            conjunction=connectives[t_norm],
+            disjunction=connectives[t_conorm], 
             implication=fl.Minimum(),
             activation=fl.General(),
             rules= [fl.Rule.create(rule.strip(), self.engine) for rule in generate_rules(n_terms_fitness=n_terms_fitness)])]
